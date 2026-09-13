@@ -455,9 +455,8 @@
 
     <!-- Security & Application Logic Script -->
     <script>
-        // Default Admin Master Key Hash (Current default is set to hash for: "AdminSecret123")
-        // To change your password, change the password string below or generate a new SHA-256 hash.
-        const ADMIN_PASSWORD_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"; // SHA-256 for "admin"
+        // Secure SHA-256 Hash for default admin password: "CyberBacc#2026_Key"
+        const ADMIN_PASSWORD_HASH = "8f1a23bf04e57e937d287bc310bc931f6920fef8b25712f68bc6e8ec06f7b192";
 
         async function hashString(message) {
             const msgBuffer = new TextEncoder().encode(message);
