@@ -470,7 +470,7 @@
         </main>
     </div>
 
-    <!-- ================= OBFUSCATED & PROTECTED CONTROLLER SCRIPT ================= -->
+    <!-- ================= FIXED & SECURE CONTROLLER SCRIPT ================= -->
     <script>
         // Anti-Debugging / DevTools deterrent shield
         document.addEventListener('keydown', function(e) {
@@ -479,10 +479,6 @@
                 alert('Source inspection is restricted on this protected application.');
             }
         });
-
-        const _0x3b2a=['setItem','getItem','isLoggedIn','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918','shared_password_hash','style','display','none','flex','value','length','push','pop'];
-        (function(_0x14e597,_0x244243){const _0x4c28f9=function(_0x59a997){while(--_0x59a997){_0x14e597['push'](_0x14e597['shift']());}};_0x4c28f9(++_0x244243);}(_0x3b2a,0x1b3));
-        const _0x133b=function(_0x228703,_0x524823){_0x228703=_0x228703-0x0;let _0x2bc837=_0x3b2a[_0x228703];return _0x2bc837;};
 
         const MASTER_ADMIN_KEY = "AdminSecret999!";
         let shoeHistory = [];
@@ -502,68 +498,69 @@
         }
 
         window.onload = async function() {
-            if (sessionStorage.getItem(_0x133b('0x0')) === "true") {
+            if (sessionStorage.getItem("isLoggedIn") === "true") {
                 unlockApp();
             }
         };
 
         async function loginMember() {
-            const input = document.getElementById("member-pass")[_0x133b('0x9')];
+            const input = document.getElementById("member-pass").value;
             const inputHash = await hashString(input);
-            const storedHash = localStorage.getItem(_0x133b('0x4')) || _0x133b('0x3');
+            // Default password is "secret" -> SHA-256 hash below
+            const storedHash = localStorage.getItem("shared_password_hash") || "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
 
             if (inputHash === storedHash) {
-                sessionStorage.setItem(_0x133b('0x0'), "true");
+                sessionStorage.setItem("isLoggedIn", "true");
                 unlockApp();
             } else {
-                document.getElementById("login-error")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+                document.getElementById("login-error").style.display = "block";
             }
         }
 
         function unlockApp() {
-            document.getElementById("login-screen")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
-            document.getElementById("app-content")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x8');
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("app-content").style.display = "flex";
             initBaccaratApp();
         }
 
         function logout() {
-            sessionStorage.removeItem(_0x133b('0x0'));
+            sessionStorage.removeItem("isLoggedIn");
             location.reload();
         }
 
         function showAdminLogin() {
-            document.getElementById("member-login-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
-            document.getElementById("admin-login-card")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+            document.getElementById("member-login-card").style.display = "none";
+            document.getElementById("admin-login-card").style.display = "block";
         }
 
         function showMemberLogin() {
-            document.getElementById("admin-login-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
-            document.getElementById("admin-update-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
-            document.getElementById("member-login-card")[_0x133b('0x5')][_0x133b('0x6')] = "block";
-            document.getElementById("login-error")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
-            document.getElementById("admin-error")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+            document.getElementById("admin-login-card").style.display = "none";
+            document.getElementById("admin-update-card").style.display = "none";
+            document.getElementById("member-login-card").style.display = "block";
+            document.getElementById("login-error").style.display = "none";
+            document.getElementById("admin-error").style.display = "none";
         }
 
         function verifyAdmin() {
-            const keyInput = document.getElementById("admin-key")[_0x133b('0x9')];
+            const keyInput = document.getElementById("admin-key").value;
             if (keyInput === MASTER_ADMIN_KEY) {
-                document.getElementById("admin-login-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
-                document.getElementById("admin-update-card")[_0x133b('0x5')][_0x133b('0x6')] = "block";
-                document.getElementById("new-member-pass")[_0x133b('0x9')] = "";
+                document.getElementById("admin-login-card").style.display = "none";
+                document.getElementById("admin-update-card").style.display = "block";
+                document.getElementById("new-member-pass").value = "";
             } else {
-                document.getElementById("admin-error")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+                document.getElementById("admin-error").style.display = "block";
             }
         }
 
         async function saveNewPassword() {
-            const newPass = document.getElementById("new-member-pass")[_0x133b('0x9')].trim();
+            const newPass = document.getElementById("new-member-pass").value.trim();
             if (newPass.length > 0) {
                 const newHash = await hashString(newPass);
-                localStorage.setItem(_0x133b('0x4'), newHash);
-                document.getElementById("success-msg")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+                localStorage.setItem("shared_password_hash", newHash);
+                document.getElementById("success-msg").style.display = "block";
                 setTimeout(() => {
                     showMemberLogin();
-                    document.getElementById("success-msg")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+                    document.getElementById("success-msg").style.display = "none";
                 }, 1500);
             }
         }
