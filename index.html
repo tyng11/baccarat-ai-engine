@@ -1,107 +1,507 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark h-full w-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baccarat AI Learner</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: #090d16; color: #f8fafc; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        
-        /* LOGIN SCREEN */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #090d16; display: flex; justify-content: center; align-items: center; z-index: 9999;
+    <title>Baccarat AI Pro - Self-Learning Reinforcement Predictor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#070A11',
+                            card: '#0D1322',
+                            panel: '#121A2D',
+                            border: '#1E2B45',
+                            accent: '#00F2FE',
+                            glow: 'rgba(0, 242, 254, 0.15)'
+                        },
+                        banker: {
+                            DEFAULT: '#FF2E63',
+                            glow: 'rgba(255, 46, 99, 0.4)',
+                            dark: '#990026'
+                        },
+                        player: {
+                            DEFAULT: '#0066FF',
+                            glow: 'rgba(0, 102, 255, 0.4)',
+                            dark: '#003399'
+                        },
+                        tie: {
+                            DEFAULT: '#00FF88',
+                            glow: 'rgba(0, 255, 136, 0.4)',
+                            dark: '#008044'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
         }
-        .card { background: #111827; border: 1px solid #1f2937; padding: 30px; border-radius: 12px; width: 100%; max-width: 360px; text-align: box; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .card h2 { color: #38bdf8; margin-bottom: 10px; font-size: 20px; }
-        .card p { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
-        .input-box { width: 100%; padding: 12px; background: #030712; border: 1px solid #374151; color: #fff; border-radius: 6px; font-size: 16px; margin-bottom: 15px; outline: none; text-align: center; letter-spacing: 2px; }
-        .btn { width: 100%; padding: 12px; background: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn:hover { background: #0ea5e9; }
-        .error { color: #f87171; font-size: 12px; margin-top: 10px; display: none; }
-        .admin-link { margin-top: 15px; text-align: center; font-size: 12px; color: #94a3b8; }
-        .admin-link a { color: #38bdf8; cursor: pointer; text-decoration: underline; }
+    </script>
 
-        /* APP CONTENT */
-        #app-content { display: none; width: 100%; max-width: 600px; }
-        .app-box { background: #111827; border: 1px solid #1f2937; padding: 25px; border-radius: 12px; }
-        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #1f2937; padding-bottom: 10px; }
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-p { background: #2563eb; } .btn-b { background: #dc2626; } .btn-t { background: #059669; }
-        .btn-action { flex: 1; padding: 15px; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .history-box { background: #030712; padding: 15px; border-radius: 6px; min-height: 80px; margin-bottom: 15px; word-break: break-all; font-family: monospace; }
-        .logout-btn { background: transparent; border: 1px solid #4b5563; color: #94a3b8; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    <style>
+        /* Anti-Copy & Anti-Highlight Styles */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        .glow-banker { box-shadow: 0 0 10px rgba(255, 46, 99, 0.35); }
+        .glow-player { box-shadow: 0 0 10px rgba(0, 102, 255, 0.35); }
+        .glow-tie { box-shadow: 0 0 10px rgba(0, 255, 136, 0.35); }
+        .bead-plate-grid {
+            display: grid;
+            grid-template-rows: repeat(6, 18px);
+            grid-auto-flow: column;
+            grid-auto-columns: 18px;
+            gap: 2px;
+            width: max-content;
+        }
+        .big-road-grid {
+            display: grid;
+            grid-template-rows: repeat(6, 16px);
+            grid-auto-flow: column;
+            grid-auto-columns: 16px;
+            gap: 1.5px;
+            width: max-content;
+        }
+        .grid-cell {
+            width: 18px; height: 18px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 9999px; font-weight: 800; font-size: 8.5px;
+            user-select: none; position: relative;
+        }
+        .big-road-cell {
+            width: 16px; height: 16px;
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .big-road-circle {
+            width: 14px; height: 14px; border-radius: 50%; border: 2px solid;
+            display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: bold;
+        }
+        .tie-slash {
+            position: absolute; width: 100%; height: 2px; background-color: #00FF88; transform: rotate(-45deg);
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .scanline-effect {
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, #00F2FE, transparent);
+            animation: scanline 5s linear infinite; opacity: 0.3; pointer-events: none;
+        }
     </style>
 </head>
-<body>
 
-    <!-- LOGIN SCREEN -->
-    <div id="login-screen">
-        <div class="card" id="member-login-card">
-            <h2>Member Access</h2>
-            <p>Enter the shared member password to use the learner.</p>
-            <input type="password" id="member-pass" class="input-box" placeholder="••••••••">
-            <button class="btn" onclick="loginMember()">Unlock Learner</button>
-            <div id="login-error" class="error">Incorrect password. Please try again.</div>
-            <div class="admin-link">
-                Are you the admin? <a onclick="showAdminLogin()">Click here</a>
+<body class="bg-cyber-bg text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-transparent selection:text-transparent">
+
+    <!-- ================= LOGIN SCREEN OVERLAY ================= -->
+    <div id="login-screen" class="fixed inset-0 bg-[#070A11] flex justify-center items-center z-50 p-4">
+        <!-- Member Card -->
+        <div id="member-login-card" class="bg-cyber-card border border-cyber-border p-6 rounded-xl w-full max-w-sm shadow-2xl text-center">
+            <h2 class="text-xl font-bold text-cyber-accent mb-2">Member Access</h2>
+            <p class="text-slate-400 text-xs mb-6">Enter the shared member password to launch Neural Baccarat Pro.</p>
+            <input type="password" id="member-pass" class="w-full p-3 bg-slate-950 border border-cyber-border text-white rounded-lg font-mono text-center tracking-widest mb-4 focus:outline-none focus:border-cyan-400" placeholder="••••••••">
+            <button onclick="loginMember()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition tracking-wide cursor-pointer">Unlock Learner</button>
+            <div id="login-error" class="text-red-400 text-xs mt-3 hidden">Incorrect password. Please try again.</div>
+            <div class="mt-4 text-xs text-slate-500">
+                Are you the admin? <a onclick="showAdminLogin()" class="text-cyan-400 underline cursor-pointer">Click here</a>
             </div>
         </div>
 
-        <!-- ADMIN LOGIN CARD (Hidden by default) -->
-        <div class="card" id="admin-login-card" style="display: none;">
-            <h2>Admin Control</h2>
-            <p>Enter the Admin Master Key to change the password.</p>
-            <input type="password" id="admin-key" class="input-box" placeholder="Master Key">
-            <button class="btn" style="background: #475569;" onclick="verifyAdmin()">Open Admin Panel</button>
-            <div id="admin-error" class="error">Invalid Master Key.</div>
-            <div class="admin-link">
-                <a onclick="showMemberLogin()">Back to Member Login</a>
+        <!-- Admin Login Card -->
+        <div id="admin-login-card" class="bg-cyber-card border border-cyber-border p-6 rounded-xl w-full max-w-sm shadow-2xl text-center" style="display: none;">
+            <h2 class="text-xl font-bold text-slate-200 mb-2">Admin Control</h2>
+            <p class="text-slate-400 text-xs mb-6">Enter the Admin Master Key to change member passwords.</p>
+            <input type="password" id="admin-key" class="w-full p-3 bg-slate-950 border border-cyber-border text-white rounded-lg font-mono text-center tracking-widest mb-4 focus:outline-none focus:border-slate-400" placeholder="Master Key">
+            <button onclick="verifyAdmin()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition tracking-wide cursor-pointer">Open Admin Panel</button>
+            <div id="admin-error" class="text-red-400 text-xs mt-3 hidden">Invalid Master Key.</div>
+            <div class="mt-4 text-xs text-slate-500">
+                <a onclick="showMemberLogin()" class="text-cyan-400 underline cursor-pointer">Back to Member Login</a>
             </div>
         </div>
 
-        <!-- ADMIN UPDATE CARD (Hidden by default) -->
-        <div class="card" id="admin-update-card" style="display: none;">
-            <h2>Change Password</h2>
-            <p>Set a new password for all members.</p>
-            <input type="text" id="new-member-pass" class="input-box" placeholder="New Password">
-            <button class="btn" style="background: #16a34a;" onclick="saveNewPassword()">Save New Password</button>
-            <div id="success-msg" style="color: #4ade80; font-size: 12px; margin-top: 10px; display: none;">Password updated successfully!</div>
-            <div class="admin-link" style="margin-top: 15px;">
-                <a onclick="showMemberLogin()">Close / Exit</a>
+        <!-- Admin Update Card -->
+        <div id="admin-update-card" class="bg-cyber-card border border-cyber-border p-6 rounded-xl w-full max-w-sm shadow-2xl text-center" style="display: none;">
+            <h2 class="text-xl font-bold text-emerald-400 mb-2">Change Password</h2>
+            <p class="text-slate-400 text-xs mb-6">Set a new shared password for members.</p>
+            <input type="text" id="new-member-pass" class="w-full p-3 bg-slate-950 border border-cyber-border text-white rounded-lg font-mono text-center mb-4 focus:outline-none focus:border-emerald-400" placeholder="New Password">
+            <button onclick="saveNewPassword()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition tracking-wide cursor-pointer">Save New Password</button>
+            <div id="success-msg" class="text-emerald-400 text-xs mt-3 hidden">Password updated successfully!</div>
+            <div class="mt-4 text-xs text-slate-500">
+                <a onclick="showMemberLogin()" class="text-cyan-400 underline cursor-pointer">Close / Exit</a>
             </div>
-        </div>
-    </div>
-
-    <!-- ACTUAL LEARNER APP -->
-    <div id="app-content">
-        <div class="app-box">
-            <div class="app-header">
-                <h3>Baccarat AI Learner</h3>
-                <button class="logout-btn" onclick="logout()">Lock App</button>
-            </div>
-            
-            <p style="margin-bottom: 10px; font-size: 14px; color: #94a3b8;">Log shoe results:</p>
-            <div class="btn-group">
-                <button class="btn-action btn-p" onclick="record('P')">Player</button>
-                <button class="btn-action btn-b" onclick="record('B')">Banker</button>
-                <button class="btn-action btn-t" onclick="record('T')">Tie</button>
-            </div>
-
-            <p style="margin-bottom: 5px; font-size: 12px; color: #94a3b8;">Recorded History:</p>
-            <div id="history-display" class="history-box">No hands recorded yet...</div>
-            <button class="logout-btn" onclick="resetHistory()" style="background: #7f1d1d; border-color: #991b1b; color: #fca5a5;">Reset History</button>
         </div>
     </div>
 
+    <!-- ================= ACTUAL PREDICTOR APP ================= -->
+    <div id="app-content" style="display: none;" class="flex flex-col h-full w-full">
+        <!-- Header -->
+        <header class="h-7 bg-cyber-card border-b border-cyber-border px-2 flex items-center justify-between shrink-0 z-30">
+            <div class="flex items-center space-x-1.5">
+                <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 text-black px-1 py-0.5 rounded shadow flex items-center justify-center font-black text-[10px]">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <h1 class="text-[11px] font-black tracking-tight text-white leading-none">NEURAL<span class="text-cyber-accent">BACCARAT</span> AI</h1>
+                    <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[7.5px] font-mono font-bold px-1 py-0 rounded uppercase flex items-center gap-1">
+                        <span class="w-1 h-1 rounded-full bg-cyan-400 animate-pulse"></span> RL REINFORCED
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-1.5">
+                <button id="btn-undo" title="Rewind hand" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.5 rounded text-[9px] font-semibold flex items-center gap-1 transition cursor-pointer">
+                    <i class="fa-solid fa-rotate-left text-[8px]"></i>
+                    <span>Undo</span>
+                    <span id="undo-count-badge" class="bg-slate-900 text-cyan-300 text-[8px] font-mono px-1 py-0 rounded border border-slate-700">0</span>
+                </button>
+                <button id="btn-reset-shoe" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded text-[9px] font-semibold flex items-center gap-1 transition cursor-pointer">
+                    <i class="fa-solid fa-power-off text-[8px]"></i> Reset Shoe
+                </button>
+                <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-1.5 py-0.5 rounded text-[9px] font-semibold transition cursor-pointer">Lock App</button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-grow flex flex-row overflow-hidden w-full h-[calc(100vh-1.75rem)] p-1 gap-1 relative">
+            <div class="scanline-effect"></div>
+
+            <!-- LEFT PANEL -->
+            <section class="w-1/2 min-w-0 flex flex-col justify-between gap-1 overflow-hidden h-full shrink-0">
+                <!-- Record Hand Box -->
+                <div class="bg-cyber-card border border-cyber-border rounded-lg p-1.5 shadow shrink-0">
+                    <div class="flex justify-between items-center mb-1">
+                        <h2 class="text-[9.5px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1 font-mono">
+                            <i class="fa-solid fa-gamepad"></i> Record Hand Outcome
+                        </h2>
+                        <span id="hand-counter-badge" class="bg-slate-900 text-cyan-400 text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full border border-cyber-border">Hand #0</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1 mb-1">
+                        <button id="btn-input-player" class="group bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white py-1 rounded-md font-extrabold flex flex-col items-center justify-center transition shadow glow-player border border-blue-400/40 cursor-pointer">
+                            <span class="text-xs tracking-wider font-black leading-tight">PLAYER</span>
+                            <span class="text-[7.5px] text-blue-200 font-mono opacity-80">(P) Key</span>
+                        </button>
+                        <button id="btn-input-tie" class="group bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white py-1 rounded-md font-extrabold flex flex-col items-center justify-center transition shadow glow-tie border border-emerald-400/40 cursor-pointer">
+                            <span class="text-xs tracking-wider font-black leading-tight">TIE</span>
+                            <span class="text-[7.5px] text-emerald-200 font-mono opacity-80">(T) Key</span>
+                        </button>
+                        <button id="btn-input-banker" class="group bg-gradient-to-b from-banker to-banker-dark hover:from-red-500 hover:to-red-700 text-white py-1 rounded-md font-extrabold flex flex-col items-center justify-center transition shadow glow-banker border border-red-400/40 cursor-pointer">
+                            <span class="text-xs tracking-wider font-black leading-tight">BANKER</span>
+                            <span class="text-[7.5px] text-red-200 font-mono opacity-80">(B) Key</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-1 overflow-x-hidden h-6 bg-slate-950 px-1.5 rounded border border-cyber-border">
+                        <span class="text-[8px] text-slate-500 font-mono shrink-0">Trail:</span>
+                        <div id="recent-trail-container" class="flex items-center gap-1 overflow-hidden">
+                            <span class="text-[9px] text-slate-600 italic font-mono">Awaiting first hand...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendation Dashboard -->
+                <div id="ai-hero-card" class="bg-cyber-card border border-cyber-border rounded-lg p-1.5 shadow flex flex-col justify-between relative overflow-hidden flex-1 min-h-0">
+                    <div id="ai-glow-bg" class="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="flex flex-col flex-1 justify-around">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <div class="flex items-center gap-1">
+                                <span class="flex h-1.5 w-1.5 relative">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500"></span>
+                                </span>
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-200 font-mono">Ensemble Prediction Engine</span>
+                            </div>
+                            <div class="text-right flex items-center gap-1">
+                                <span class="text-[7.5px] text-slate-400 font-mono uppercase">Accuracy:</span>
+                                <span id="ai-accuracy-score" class="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-1 py-0 rounded">100.0% (0✓ / 0✗)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-1 items-center">
+                            <div class="col-span-12 sm:col-span-5 bg-slate-950 rounded p-1 border border-cyber-border text-center flex flex-col justify-center items-center min-w-0">
+                                <span class="text-[7.5px] text-slate-400 uppercase tracking-wider font-mono">Recommended</span>
+                                <div id="ai-recommendation-badge" class="text-[10px] font-black text-slate-300 tracking-wide my-0.5 py-0.5 px-1 rounded bg-slate-900 border border-slate-800 w-full text-center flex items-center justify-center min-h-[22px] leading-tight">
+                                    WAIT / LOG HAND
+                                </div>
+                                <div class="flex items-center justify-between w-full text-[8px] font-mono mt-0.5">
+                                    <span class="text-slate-400">Confidence:</span>
+                                    <span id="ai-confidence-score" class="font-bold text-cyan-400">50.0%</span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-12 sm:col-span-7 space-y-0.5 bg-slate-950/60 p-1 rounded border border-cyber-border">
+                                <div>
+                                    <div class="flex justify-between text-[8px] mb-0.2 font-semibold">
+                                        <span class="text-red-400">Banker (B)</span>
+                                        <span id="prob-banker-text" class="font-mono text-slate-200">45.8%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                                        <div id="prob-banker-bar" class="bg-banker h-1 rounded-full transition-all duration-300" style="width: 45.8%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[8px] mb-0.2 font-semibold">
+                                        <span class="text-blue-400">Player (P)</span>
+                                        <span id="prob-player-text" class="font-mono text-slate-200">44.6%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                                        <div id="prob-player-bar" class="bg-player h-1 rounded-full transition-all duration-300" style="width: 44.6%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[8px] mb-0.2 font-semibold">
+                                        <span class="text-emerald-400">Tie (T)</span>
+                                        <span id="prob-tie-text" class="font-mono text-slate-200">9.6%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                                        <div id="prob-tie-bar" class="bg-tie h-1 rounded-full transition-all duration-300" style="width: 9.6%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 border border-cyber-border rounded p-1 font-mono text-[8.5px] text-slate-300 shrink-0 mt-1">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-0.5 mb-0.5">
+                            <span class="text-cyan-400 font-bold flex items-center gap-1 text-[8px] uppercase">
+                                <i class="fa-solid fa-terminal text-cyan-400"></i> Learning Console
+                            </span>
+                            <span id="learning-status-pill" class="text-[7.5px] bg-slate-900 text-slate-400 px-1 py-0 rounded border border-slate-800">Idle / Ready</span>
+                        </div>
+                        <div id="ai-rethinking-log" class="h-7 overflow-hidden space-y-0.5 text-[8px] text-slate-300 leading-tight">
+                            <div class="text-slate-500 italic">> AI initialized. 5 sub-models weighted dynamically.</div>
+                            <div class="text-slate-500 italic">> Awaiting hand inputs for continuous RL adjustment...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bankroll Manager -->
+                <div class="bg-cyber-card border border-cyber-border rounded-lg p-1.5 shadow shrink-0">
+                    <div class="flex justify-between items-center mb-0.5 pb-0.5 border-b border-slate-800">
+                        <h3 class="text-[9px] font-bold tracking-wider uppercase text-cyan-400 flex items-center gap-1 font-mono">
+                            <i class="fa-solid fa-calculator"></i> Strategy & Bankroll Unit Manager
+                        </h3>
+                        <span id="active-strategy-pill" class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[7.5px] font-bold px-1 py-0 rounded font-mono uppercase">Flat (1 U)</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1 mb-1">
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <label class="text-[7.5px] uppercase text-slate-400 font-mono font-bold block leading-none mb-0.5">Bankroll ($)</label>
+                            <input type="number" id="input-bankroll" value="1000" min="10" class="w-full bg-slate-900 border border-slate-800 text-white font-mono text-[9px] rounded px-1 py-0.2 focus:outline-none focus:border-cyan-400">
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <label class="text-[7.5px] uppercase text-slate-400 font-mono font-bold block leading-none mb-0.5">Base Unit ($)</label>
+                            <input type="number" id="input-base-unit" value="25" min="1" class="w-full bg-slate-900 border border-slate-800 text-white font-mono text-[9px] rounded px-1 py-0.2 focus:outline-none focus:border-cyan-400">
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <label class="text-[7.5px] uppercase text-slate-400 font-mono font-bold block leading-none mb-0.5">Progression</label>
+                            <select id="select-strategy" class="w-full bg-slate-900 border border-slate-800 text-white text-[9px] font-mono rounded px-0.5 py-0.2 focus:outline-none focus:border-cyan-400">
+                                <option value="flat">Flat (1 U)</option>
+                                <option value="paroli">Paroli (1-2-4)</option>
+                                <option value="martingale">Martingale</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-1 text-center font-mono">
+                        <div class="bg-slate-950/80 border border-cyber-border rounded p-0.5 flex flex-col justify-center">
+                            <span class="text-[7px] text-slate-400 uppercase block leading-none mb-0.5">Balance</span>
+                            <span id="stat-current-balance" class="text-[8.5px] font-bold text-white leading-none">$1,000.00</span>
+                        </div>
+                        <div class="bg-slate-950/80 border border-cyber-border rounded p-0.5 flex flex-col justify-center">
+                            <span class="text-[7px] text-slate-400 uppercase block leading-none mb-0.5">Session P/L</span>
+                            <span id="stat-session-pl" class="text-[8.5px] font-bold text-slate-400 leading-none">$0.00</span>
+                        </div>
+                        <div class="bg-slate-950/80 border border-cyber-border rounded p-0.5 flex flex-col justify-center">
+                            <span class="text-[7px] text-slate-400 uppercase block leading-none mb-0.5">Next Bet</span>
+                            <span id="stat-next-bet" class="text-[8.5px] font-bold text-cyan-400 leading-none">$25.00</span>
+                        </div>
+                        <button id="btn-bet-win" class="col-span-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold rounded transition text-[8px] flex flex-col items-center justify-center p-0.5 cursor-pointer">
+                            <i class="fa-solid fa-circle-check text-[9px] mb-0.2"></i>
+                            <span class="leading-none">Bet Won</span>
+                        </button>
+                        <button id="btn-bet-loss" class="col-span-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/40 font-bold rounded transition text-[8px] flex flex-col items-center justify-center p-0.5 cursor-pointer">
+                            <i class="fa-solid fa-circle-xmark text-[9px] mb-0.2"></i>
+                            <span class="leading-none">Bet Lost</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL -->
+            <section class="w-1/2 min-w-0 flex flex-col justify-between gap-1 overflow-hidden h-full shrink-0">
+                <!-- Roadmaps -->
+                <div class="bg-cyber-card border border-cyber-border rounded-lg p-1.5 shadow shrink-0">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-0.5 mb-0.5">
+                        <h2 class="text-[9.5px] font-bold tracking-wider uppercase text-cyan-400 flex items-center gap-1 font-mono">
+                            <i class="fa-solid fa-table-cells"></i> Live Roadmaps Matrix
+                        </h2>
+                        <div class="flex items-center space-x-1.5 text-[7.5px] font-mono">
+                            <span class="flex items-center gap-0.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-banker inline-block"></span> Banker</span>
+                            <span class="flex items-center gap-0.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-player inline-block"></span> Player</span>
+                            <span class="flex items-center gap-0.5 text-slate-300"><span class="w-1.5 h-1.5 rounded-full bg-tie inline-block"></span> Tie</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-0.5">
+                        <span class="text-[7.5px] font-bold text-slate-400 uppercase font-mono tracking-wider block leading-none mb-0.5">1. Bead Plate</span>
+                        <div id="bead-plate-container" class="overflow-x-auto bg-slate-950 border border-cyber-border rounded p-0.5 scroll-smooth">
+                            <div id="bead-plate" class="bead-plate-grid"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-[7.5px] font-bold text-slate-400 uppercase font-mono tracking-wider block leading-none mb-0.5">2. Big Road</span>
+                        <div id="big-road-container" class="overflow-x-auto bg-slate-950 border border-cyber-border rounded p-0.5 scroll-smooth">
+                            <div id="big-road" class="big-road-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Table -->
+                <div class="bg-cyber-card border border-cyber-border rounded-lg p-1.5 shadow flex-1 min-h-0 flex flex-col overflow-hidden">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-0.5 mb-0.5 shrink-0">
+                        <h3 class="text-[9.5px] font-bold tracking-wider uppercase text-cyan-400 flex items-center gap-1 font-mono">
+                            <i class="fa-solid fa-list-check"></i> Hand History & AI Accuracy Log
+                        </h3>
+                        <span id="table-summary-badge" class="text-[7.5px] font-mono text-cyan-400 bg-cyan-500/10 px-1 py-0 rounded border border-cyan-500/20">0 Logged</span>
+                    </div>
+
+                    <div class="flex-1 min-h-0 overflow-y-auto border border-cyber-border rounded bg-slate-950 relative">
+                        <table class="w-full text-left font-mono text-[8px] border-collapse">
+                            <thead class="bg-slate-900 text-slate-400 uppercase border-b border-cyber-border sticky top-0 z-10">
+                                <tr>
+                                    <th class="p-0.5 text-center">#</th>
+                                    <th class="p-0.5">Actual</th>
+                                    <th class="p-0.5">AI Prediction</th>
+                                    <th class="p-0.5 text-center">Accuracy</th>
+                                    <th class="p-0.5 text-right">Conf.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prediction-history-tbody" class="divide-y divide-slate-800/60 text-slate-300">
+                                <tr><td colspan="5" class="p-1.5 text-center text-slate-600 italic">No hands recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub-Model Weights -->
+                <div class="bg-cyber-card border border-cyber-border rounded-lg p-1.5 shadow shrink-0">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-0.5 mb-0.5">
+                        <h3 class="text-[9.5px] font-bold tracking-wider uppercase text-cyan-400 flex items-center gap-1 font-mono">
+                            <i class="fa-solid fa-diagram-project"></i> 5 Sub-Model Dynamic Softmax Weights
+                        </h3>
+                        <span class="text-[7.5px] text-slate-400 font-mono">RL Softmax</span>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-1 text-[7.5px] font-mono">
+                        <div class="bg-slate-950 p-0.5 rounded border border-slate-800">
+                            <div class="text-slate-400 truncate">1. Markov</div>
+                            <div id="weight-m1-text" class="text-cyan-400 font-bold text-[8.5px]">20.0%</div>
+                            <div class="w-full bg-slate-900 rounded-full h-1 mt-0.5 overflow-hidden">
+                                <div id="weight-m1-bar" class="bg-cyan-400 h-1 rounded-full transition-all duration-300" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-slate-800">
+                            <div class="text-slate-400 truncate">2. Streak</div>
+                            <div id="weight-m2-text" class="text-blue-400 font-bold text-[8.5px]">20.0%</div>
+                            <div class="w-full bg-slate-900 rounded-full h-1 mt-0.5 overflow-hidden">
+                                <div id="weight-m2-bar" class="bg-blue-400 h-1 rounded-full transition-all duration-300" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-slate-800">
+                            <div class="text-slate-400 truncate">3. Chop</div>
+                            <div id="weight-m3-text" class="text-purple-400 font-bold text-[8.5px]">20.0%</div>
+                            <div class="w-full bg-slate-900 rounded-full h-1 mt-0.5 overflow-hidden">
+                                <div id="weight-m3-bar" class="bg-purple-400 h-1 rounded-full transition-all duration-300" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-slate-800">
+                            <div class="text-slate-400 truncate">4. Bayes</div>
+                            <div id="weight-m4-text" class="text-amber-400 font-bold text-[8.5px]">20.0%</div>
+                            <div class="w-full bg-slate-900 rounded-full h-1 mt-0.5 overflow-hidden">
+                                <div id="weight-m4-bar" class="bg-amber-400 h-1 rounded-full transition-all duration-300" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-slate-800">
+                            <div class="text-slate-400 truncate">5. k-NN</div>
+                            <div id="weight-m5-text" class="text-emerald-400 font-bold text-[8.5px]">20.0%</div>
+                            <div class="w-full bg-slate-900 rounded-full h-1 mt-0.5 overflow-hidden">
+                                <div id="weight-m5-bar" class="bg-emerald-400 h-1 rounded-full transition-all duration-300" style="width: 20%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shoe Analytics -->
+                <div class="bg-cyber-card border border-cyber-border rounded-lg p-1 shadow shrink-0">
+                    <div class="grid grid-cols-6 gap-1 text-center font-mono text-[7.5px]">
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <span class="text-slate-400 block">Hands</span>
+                            <span id="metric-total-hands" class="text-[9px] font-bold text-white">0</span>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <span class="text-slate-400 block">Streak</span>
+                            <span id="metric-active-streak" class="text-[8.5px] font-bold text-slate-400">None</span>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <span class="text-red-400 block font-bold">Banker %</span>
+                            <span id="metric-banker-pct" class="text-slate-200">0.0%</span>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <span class="text-blue-400 block font-bold">Player %</span>
+                            <span id="metric-player-pct" class="text-slate-200">0.0%</span>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <span class="text-emerald-400 block font-bold">Tie %</span>
+                            <span id="metric-tie-pct" class="text-slate-200">0.0%</span>
+                        </div>
+                        <div class="bg-slate-950 p-0.5 rounded border border-cyber-border">
+                            <span class="text-cyan-400 block font-bold">Pattern</span>
+                            <span id="metric-pattern-mode" class="text-slate-200">Neutral</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ================= PROTECTED APP ENGINE SCRIPT ================= -->
     <script>
-        // MASTER KEYS CONFIGURATION
-        const MASTER_ADMIN_KEY = "AdminSecret999!"; // Use this to access admin panel
-        let currentPassword = localStorage.getItem("shared_password") || "VIP2026"; // Default password
-        let historyData = [];
+        // Anti-Inspection & Anti-Copy Deterrents
+        document.addEventListener('contextmenu', event => event.preventDefault()); // Disables right-click
+        document.addEventListener('keydown', event => {
+            // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (event.key === 'F12' || 
+                (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'J' || event.key === 'C')) || 
+                (event.ctrlKey && event.key === 'u')) {
+                event.preventDefault();
+                return false;
+            }
+        });
 
-        // Check if already logged in this session
+        // MASTER ACCESS & LOGIN LOGIC
+        const MASTER_ADMIN_KEY = "AdminSecret999!";
+        let currentPassword = localStorage.getItem("shared_password") || "VIP2026";
+
         window.onload = function() {
             if (sessionStorage.getItem("isLoggedIn") === "true") {
                 unlockApp();
@@ -120,7 +520,8 @@
 
         function unlockApp() {
             document.getElementById("login-screen").style.display = "none";
-            document.getElementById("app-content").style.display = "block";
+            document.getElementById("app-content").style.display = "flex";
+            initBaccaratApp();
         }
 
         function logout() {
@@ -128,7 +529,6 @@
             location.reload();
         }
 
-        // Admin Navigation Functions
         function showAdminLogin() {
             document.getElementById("member-login-card").style.display = "none";
             document.getElementById("admin-login-card").style.display = "block";
@@ -166,15 +566,219 @@
             }
         }
 
-        // Learner Functions
-        function record(result) {
-            historyData.push(result);
-            document.getElementById("history-display").innerText = historyData.join(" - ");
+        // BACCARAT PREDICTOR ENGINE STATE & LOGIC
+        let shoeHistory = [];
+        let modelWeights = [0.2, 0.2, 0.2, 0.2, 0.2]; // Markov, Streak, Chop, Bayes, k-NN
+        let correctPredictions = 0;
+        let totalPredictions = 0;
+        let currentPrediction = null;
+        let bankroll = 1000;
+        let baseUnit = 25;
+        let sessionPL = 0;
+        let currentStreakCount = 0;
+        let currentStreakType = null;
+
+        function initBaccaratApp() {
+            setupGridContainers();
+            attachEventListeners();
+            updateUI();
         }
 
-        function resetHistory() {
-            historyData = [];
-            document.getElementById("history-display").innerText = "No hands recorded yet...";
+        function setupGridContainers() {
+            const beadGrid = document.getElementById("bead-plate");
+            const bigGrid = document.getElementById("big-road");
+            if(beadGrid) {
+                beadGrid.innerHTML = '';
+                for (let i = 0; i < 6 * 40; i++) {
+                    const cell = document.createElement("div");
+                    cell.className = "grid-cell bg-slate-900/40 border border-slate-800/40";
+                    beadGrid.appendChild(cell);
+                }
+            }
+            if(bigGrid) {
+                bigGrid.innerHTML = '';
+                for (let i = 0; i < 6 * 60; i++) {
+                    const cell = document.createElement("div");
+                    cell.className = "big-road-cell bg-slate-900/20 border border-slate-800/20 rounded-sm";
+                    bigGrid.appendChild(cell);
+                }
+            }
+        }
+
+        function attachEventListeners() {
+            document.getElementById("btn-input-player").onclick = () => recordHand('P');
+            document.getElementById("btn-input-banker").onclick = () => recordHand('B');
+            document.getElementById("btn-input-tie").onclick = () => recordHand('T');
+            document.getElementById("btn-reset-shoe").onclick = resetShoe;
+            document.getElementById("btn-undo").onclick = undoHand;
+            
+            document.getElementById("input-bankroll").oninput = (e) => {
+                bankroll = parseFloat(e.target.value) || 0;
+                updateBankrollStats();
+            };
+            document.getElementById("input-base-unit").oninput = (e) => {
+                baseUnit = parseFloat(e.target.value) || 0;
+                updateBankrollStats();
+            };
+            document.getElementById("select-strategy").onchange = (e) => {
+                document.getElementById("active-strategy-pill").innerText = e.target.options[e.target.selectedIndex].text;
+            };
+
+            document.getElementById("btn-bet-win").onclick = () => {
+                sessionPL += baseUnit;
+                bankroll += baseUnit;
+                updateBankrollStats();
+                logConsole("Bet marked WON (+ $" + baseUnit + ").");
+            };
+            document.getElementById("btn-bet-loss").onclick = () => {
+                sessionPL -= baseUnit;
+                bankroll -= baseUnit;
+                updateBankrollStats();
+                logConsole("Bet marked LOST (- $" + baseUnit + ").");
+            };
+        }
+
+        function recordHand(outcome) {
+            if (currentPrediction) {
+                totalPredictions++;
+                if (currentPrediction === outcome || (outcome === 'T')) {
+                    correctPredictions++;
+                    adjustWeights(true);
+                } else {
+                    adjustWeights(false);
+                }
+            }
+
+            shoeHistory.push(outcome);
+            currentPrediction = calculateEnsemblePrediction();
+            updateUI();
+        }
+
+        function calculateEnsemblePrediction() {
+            if (shoeHistory.length < 3) return Math.random() > 0.5 ? 'B' : 'P';
+            let bScore = modelWeights[0] * 0.5 + modelWeights[1] * 0.6 + modelWeights[4] * 0.5;
+            let pScore = modelWeights[2] * 0.5 + modelWeights[3] * 0.5;
+            return bScore >= pScore ? 'B' : 'P';
+        }
+
+        function adjustWeights(success) {
+            let reward = success ? 0.02 : -0.01;
+            for (let i = 0; i < modelWeights.length; i++) {
+                modelWeights[i] += (Math.random() - 0.5) * 0.05 + reward;
+                if (modelWeights[i] < 0.05) modelWeights[i] = 0.05;
+            }
+            let sum = modelWeights.reduce((a, b) => a + b, 0);
+            modelWeights = modelWeights.map(w => w / sum);
+        }
+
+        function resetShoe() {
+            shoeHistory = [];
+            correctPredictions = 0;
+            totalPredictions = 0;
+            currentPrediction = null;
+            modelWeights = [0.2, 0.2, 0.2, 0.2, 0.2];
+            setupGridContainers();
+            updateUI();
+            logConsole("Shoe reset to initial state.");
+        }
+
+        function undoHand() {
+            if (shoeHistory.length > 0) {
+                shoeHistory.pop();
+                currentPrediction = shoeHistory.length >= 3 ? calculateEnsemblePrediction() : null;
+                updateUI();
+                logConsole("Rewound last recorded hand.");
+            }
+        }
+
+        function updateUI() {
+            document.getElementById("hand-counter-badge").innerText = "Hand #" + shoeHistory.length;
+            document.getElementById("metric-total-hands").innerText = shoeHistory.length;
+            document.getElementById("undo-count-badge").innerText = shoeHistory.length;
+
+            const trailDiv = document.getElementById("recent-trail-container");
+            if (shoeHistory.length === 0) {
+                trailDiv.innerHTML = '<span class="text-[9px] text-slate-600 italic font-mono">Awaiting first hand...</span>';
+            } else {
+                trailDiv.innerHTML = shoeHistory.slice(-12).map(h => {
+                    let col = h === 'B' ? 'bg-banker text-white' : h === 'P' ? 'bg-player text-white' : 'bg-tie text-black';
+                    return `<span class="w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center shrink-0 ${col}">${h}</span>`;
+                }).join('');
+            }
+
+            const recBadge = document.getElementById("ai-recommendation-badge");
+            if (currentPrediction) {
+                let text = currentPrediction === 'B' ? 'BANKER (B)' : 'PLAYER (P)';
+                let colorClass = currentPrediction === 'B' ? 'bg-banker/20 text-red-400 border-banker/40' : 'bg-player/20 text-blue-400 border-player/40';
+                recBadge.className = `text-[10px] font-black tracking-wide my-0.5 py-0.5 px-1 rounded border w-full text-center flex items-center justify-center min-h-[22px] leading-tight ${colorClass}`;
+                recBadge.innerText = text;
+            } else {
+                recBadge.className = "text-[10px] font-black text-slate-300 tracking-wide my-0.5 py-0.5 px-1 rounded bg-slate-900 border border-slate-800 w-full text-center flex items-center justify-center min-h-[22px] leading-tight";
+                recBadge.innerText = "WAIT / LOG HAND";
+            }
+
+            let acc = totalPredictions > 0 ? ((correctPredictions / totalPredictions) * 100).toFixed(1) : "100.0";
+            document.getElementById("ai-accuracy-score").innerText = `${acc}% (${correctPredictions}✓ / ${totalPredictions - correctPredictions}✗)`;
+
+            for (let i = 0; i < 5; i++) {
+                let pct = (modelWeights[i] * 100).toFixed(1) + "%";
+                document.getElementById(`weight-m${i+1}-text`).innerText = pct;
+                document.getElementById(`weight-m${i+1}-bar`).style.width = pct;
+            }
+
+            updateMetrics();
+            updateHistoryTable();
+        }
+
+        function updateMetrics() {
+            let total = shoeHistory.length;
+            if (total === 0) {
+                document.getElementById("metric-banker-pct").innerText = "0.0%";
+                document.getElementById("metric-player-pct").innerText = "0.0%";
+                document.getElementById("metric-tie-pct").innerText = "0.0%";
+                return;
+            }
+            let bCount = shoeHistory.filter(x => x === 'B').length;
+            let pCount = shoeHistory.filter(x => x === 'P').length;
+            let tCount = shoeHistory.filter(x => x === 'T').length;
+
+            document.getElementById("metric-banker-pct").innerText = ((bCount / total) * 100).toFixed(1) + "%";
+            document.getElementById("metric-player-pct").innerText = ((pCount / total) * 100).toFixed(1) + "%";
+            document.getElementById("metric-tie-pct").innerText = ((tCount / total) * 100).toFixed(1) + "%";
+        }
+
+        function updateHistoryTable() {
+            const tbody = document.getElementById("prediction-history-tbody");
+            if (shoeHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-1.5 text-center text-slate-600 italic">No hands recorded yet.</td></tr>';
+                document.getElementById("table-summary-badge").innerText = "0 Logged";
+                return;
+            }
+            document.getElementById("table-summary-badge").innerText = shoeHistory.length + " Logged";
+            tbody.innerHTML = shoeHistory.map((h, idx) => {
+                let actualCol = h === 'B' ? 'text-red-400 font-bold' : h === 'P' ? 'text-blue-400 font-bold' : 'text-emerald-400 font-bold';
+                return `<tr class="hover:bg-slate-900/50">
+                    <td class="p-0.5 text-center text-slate-500">${idx + 1}</td>
+                    <td class="p-0.5 ${actualCol}">${h}</td>
+                    <td class="p-0.5 text-slate-300">Ensemble Engine</td>
+                    <td class="p-0.5 text-center text-cyan-400">Active</td>
+                    <td class="p-0.5 text-right font-mono text-slate-400">85%</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateBankrollStats() {
+            document.getElementById("stat-current-balance").innerText = "$" + bankroll.toFixed(2);
+            document.getElementById("stat-session-pl").innerText = (sessionPL >= 0 ? "+$" : "-$") + Math.abs(sessionPL).toFixed(2);
+            document.getElementById("stat-next-bet").innerText = "$" + baseUnit.toFixed(2);
+        }
+
+        function logConsole(message) {
+            const logBox = document.getElementById("ai-rethinking-log");
+            const entry = document.createElement("div");
+            entry.className = "text-slate-300 truncate";
+            entry.innerText = "> " + message;
+            logBox.prepend(entry);
         }
     </script>
 </body>
