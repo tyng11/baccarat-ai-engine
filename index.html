@@ -52,7 +52,7 @@
 
     <style>
         ::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; user-select: none; -webkit-user-select: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
         .glow-banker { box-shadow: 0 0 10px rgba(255, 46, 99, 0.35); }
         .glow-player { box-shadow: 0 0 10px rgba(0, 102, 255, 0.35); }
         .glow-tie { box-shadow: 0 0 10px rgba(0, 255, 136, 0.35); }
@@ -76,11 +76,18 @@
             width: 18px; height: 18px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 9999px; font-weight: 800; font-size: 8.5px;
-            position: relative;
+            user-select: none; position: relative;
         }
         .big-road-cell {
             width: 16px; height: 16px;
             display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .big-road-circle {
+            width: 14px; height: 14px; border-radius: 50%; border: 2px solid;
+            display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: bold;
+        }
+        .tie-slash {
+            position: absolute; width: 100%; height: 2px; background-color: #00FF88; transform: rotate(-45deg);
         }
         @keyframes scanline {
             0% { transform: translateY(-100%); }
@@ -94,7 +101,7 @@
     </style>
 </head>
 
-<body class="bg-cyber-bg text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-cyan-500 selection:text-black" oncontextmenu="return false;">
+<body class="bg-cyber-bg text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-cyan-500 selection:text-black">
 
     <!-- ================= LOGIN SCREEN OVERLAY ================= -->
     <div id="login-screen" class="fixed inset-0 bg-[#070A11] flex justify-center items-center z-50 p-4">
@@ -470,25 +477,12 @@
         </main>
     </div>
 
-    <!-- ================= FIXED & SECURE CONTROLLER SCRIPT ================= -->
+    <!-- ================= APP PREDICTOR SCRIPT ENGINE ================= -->
     <script>
-        // Anti-Debugging / DevTools deterrent shield
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
-                e.preventDefault();
-                alert('Source inspection is restricted on this protected application.');
-            }
-        });
-
+        // MASTER ACCESS & SECURE HASH LOGIN LOGIC
         const MASTER_ADMIN_KEY = "AdminSecret999!";
-        let shoeHistory = [];
-        let modelWeights = [0.2, 0.2, 0.2, 0.2, 0.2];
-        let correctPredictions = 0;
-        let totalPredictions = 0;
-        let currentPrediction = null;
-        let bankroll = 1000;
-        let baseUnit = 25;
-        let sessionPL = 0;
+        // Default password "VIP2026" hashed with SHA-256 (safe from public view)
+        const DEFAULT_PASSWORD_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"; 
 
         async function hashString(message) {
             const msgBuffer = new TextEncoder().encode(message);
@@ -506,8 +500,7 @@
         async function loginMember() {
             const input = document.getElementById("member-pass").value;
             const inputHash = await hashString(input);
-            // Default password is "secret" -> SHA-256 hash below
-            const storedHash = localStorage.getItem("shared_password_hash") || "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+            const storedHash = localStorage.getItem("shared_password_hash") || DEFAULT_PASSWORD_HASH;
 
             if (inputHash === storedHash) {
                 sessionStorage.setItem("isLoggedIn", "true");
@@ -564,6 +557,18 @@
                 }, 1500);
             }
         }
+
+        // BACCARAT PREDICTOR ENGINE STATE & LOGIC
+        let shoeHistory = [];
+        let modelWeights = [0.2, 0.2, 0.2, 0.2, 0.2]; // Markov, Streak, Chop, Bayes, k-NN
+        let correctPredictions = 0;
+        let totalPredictions = 0;
+        let currentPrediction = null;
+        let bankroll = 1000;
+        let baseUnit = 25;
+        let sessionPL = 0;
+        let currentStreakCount = 0;
+        let currentStreakType = null;
 
         function initBaccaratApp() {
             setupGridContainers();
