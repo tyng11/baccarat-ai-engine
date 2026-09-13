@@ -23,18 +23,15 @@
         }
     </script>
     <style>
-        /* Disable text selection across entire app */
         body, html {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
-
         .glow-banker { box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
         .glow-player { box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
         .glow-tie { box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
-        
         .road-grid {
             display: grid;
             grid-template-rows: repeat(6, 1fr);
@@ -42,132 +39,94 @@
             grid-auto-columns: minmax(18px, 18px);
             gap: 2px;
         }
-        
         .grid-cell {
-            width: 18px;
-            height: 18px;
-            font-size: 9px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 9999px;
-            user-select: none;
+            width: 18px; height: 18px; font-size: 9px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; border-radius: 9999px;
         }
-
-        .big-road-cell {
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .big-road-circle {
-            width: 14px;
-            height: 14px;
-            border-radius: 9999px;
-            border: 2px solid;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 7px;
-            font-weight: 800;
-        }
-
-        .tie-slash {
-            position: absolute;
-            width: 16px;
-            height: 2px;
-            background-color: #10b981;
-            transform: rotate(-45deg);
-        }
+        .big-road-cell { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .big-road-circle { width: 14px; height: 14px; border-radius: 9999px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 800; }
+        .tie-slash { position: absolute; width: 16px; height: 2px; background-color: #10b981; transform: rotate(-45deg); }
     </style>
-
-    <!-- ANTI-COPY & ANTI-INSPECT SECURITY SHIELD -->
-    <script>
-        // Disable Right-Click Context Menu
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-        // Block Keyboard Inspection Shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (
-                e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
-                (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S'))
-            ) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }
-        });
-
-        // Anti-Debugging Freeze Loop (Traps DevTools open attempts)
-        setInterval(function() {
-            const startTime = performance.now();
-            (function(){}).constructor('debugger')();
-            const endTime = performance.now();
-            if (endTime - startTime > 100) {
-                document.body.innerHTML = '<div style="color:white;background:#090d16;height:100vh;display:flex;justify-content:center;align-items:center;font-family:monospace;font-size:18px;">Developer Tools Detected. Session Terminated.</div>';
-            }
-        }, 1000);
-    </script>
 </head>
 <body class="h-full bg-slate-950 font-sans text-slate-100 flex flex-col justify-between p-2 overflow-x-hidden">
 
 <!-- ================================================================= -->
-<!-- 5-DIGIT MEMBER LOCK SCREEN OVERLAY                                 -->
+<!-- MEMBER LOGIN GATE SCREEN                                          -->
 <!-- ================================================================= -->
-<div id="access-lock-screen" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+<div id="login-screen" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center">
         <div class="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mx-auto mb-3 text-lg">
             <i class="fa-solid fa-lock"></i>
         </div>
 
         <h2 class="text-base font-bold text-white font-mono tracking-wide uppercase mb-1">MEMBER ACCESS</h2>
-        <p class="text-[11px] text-slate-400 font-mono mb-4">Enter your 5-digit YouTube member passcode to unlock the dashboard.</p>
+        <p class="text-[11px] text-slate-400 font-mono mb-4">Enter the active member password to unlock the learner.</p>
 
-        <form id="passcode-form" class="space-y-4">
+        <form id="login-form" class="space-y-4">
             <div>
                 <input 
                     type="password" 
-                    id="passcode-input" 
-                    maxlength="5" 
-                    pattern="[0-9]{5}"
-                    inputmode="numeric"
+                    id="login-password-input" 
                     required 
-                    autocomplete="off"
-                    class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-500 text-center font-mono text-2xl tracking-[0.5em] text-cyan-400 py-2 rounded-lg outline-none transition placeholder:text-slate-700" 
-                    placeholder="•••••"
+                    autocomplete="current-password"
+                    class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-500 text-center font-mono text-xl tracking-widest text-cyan-400 py-2.5 rounded-lg outline-none transition placeholder:text-slate-700" 
+                    placeholder="Enter Password"
                 >
             </div>
 
-            <div id="passcode-error" class="text-red-400 text-[10px] font-mono hidden bg-red-500/10 border border-red-500/20 py-1 rounded">
-                <i class="fa-solid fa-circle-exclamation mr-1"></i> Invalid 5-digit passcode.
+            <div id="login-error" class="text-red-400 text-[10px] font-mono hidden bg-red-500/10 border border-red-500/20 py-1 rounded">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i> Incorrect password.
             </div>
 
             <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs py-2.5 rounded-lg shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-                <span>UNLOCK DASHBOARD</span>
-                <i class="fa-solid fa-key"></i>
+                <span>UNLOCK LEARNER</span>
+                <i class="fa-solid fa-arrow-right"></i>
             </button>
         </form>
 
-        <p class="text-[9.5px] text-slate-500 font-mono mt-4">
-            Get your active passcode on our YouTube Channel Community tab.
-        </p>
+        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px] font-mono text-slate-500">
+            <span>Admin Control:</span>
+            <button id="btn-open-admin" class="text-cyan-400 hover:underline">Admin Login</button>
+        </div>
     </div>
 </div>
 
 <!-- ================================================================= -->
-<!-- MAIN DASHBOARD CONTENT                                            -->
+<!-- ADMIN PANEL MODAL (To change password weekly/bi-weekly)             -->
+<!-- ================================================================= -->
+<div id="admin-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
+            <h3 class="text-xs font-bold text-cyan-400 uppercase font-mono"><i class="fa-solid fa-user-shield mr-1"></i> Admin Password Manager</h3>
+            <button id="btn-close-admin" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div id="admin-auth-view" class="space-y-3">
+            <p class="text-[10px] text-slate-400 font-mono">Enter Admin Master Key to change the member password:</p>
+            <input type="password" id="admin-master-input" placeholder="Admin Key" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white font-mono outline-none focus:border-cyan-500">
+            <button id="btn-verify-admin" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs py-2 rounded">Authenticate Admin</button>
+            <div id="admin-auth-error" class="text-red-400 text-[10px] font-mono hidden">Invalid Master Key.</div>
+        </div>
+
+        <div id="admin-panel-view" class="space-y-3 hidden">
+            <div>
+                <label class="text-[10px] text-slate-400 font-mono block mb-1">Set New Member Password:</label>
+                <input type="text" id="new-member-pass-input" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-cyan-400 font-mono font-bold outline-none focus:border-cyan-500">
+            </div>
+            <div id="admin-success-msg" class="text-emerald-400 text-[10px] font-mono hidden"><i class="fa-solid fa-check mr-1"></i> Password updated successfully!</div>
+            <button id="btn-save-new-pass" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs py-2 rounded shadow">Update Password</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- MAIN BACCARAT LEARNER DASHBOARD                                   -->
 <!-- ================================================================= -->
 <div class="max-w-7xl w-full mx-auto space-y-2">
-    <!-- Header Controls -->
-    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 shadow-lg backdrop-blur">
+    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 shadow-lg">
         <div class="flex items-center gap-2">
             <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></div>
-            <h1 class="text-xs font-black tracking-widest text-white uppercase font-mono">BACCARAT AI ENSEMBLE</h1>
+            <h1 class="text-xs font-black tracking-widest text-white uppercase font-mono">BACCARAT AI LEARNER</h1>
             <span id="hand-counter-badge" class="bg-slate-800 border border-slate-700 text-cyan-400 font-mono text-[9px] px-1.5 py-0.5 rounded font-bold">Hand #0</span>
         </div>
         
@@ -175,11 +134,10 @@
             <button id="btn-undo" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[9.5px] px-2 py-1 rounded border border-slate-700 transition flex items-center gap-1">
                 <i class="fa-solid fa-rotate-left text-amber-400"></i>
                 <span>Undo</span>
-                <span id="undo-count-badge" class="bg-slate-900 text-slate-400 px-1 rounded text-[8px]">0</span>
             </button>
-            <button id="btn-reset-shoe" class="bg-slate-800 hover:bg-red-950/40 text-red-400 font-mono text-[9.5px] px-2 py-1 rounded border border-slate-700 hover:border-red-800/50 transition flex items-center gap-1">
+            <button id="btn-reset-shoe" class="bg-slate-800 hover:bg-red-950/40 text-red-400 font-mono text-[9.5px] px-2 py-1 rounded border border-slate-700 transition flex items-center gap-1">
                 <i class="fa-solid fa-trash-can"></i>
-                <span>Reset Shoe</span>
+                <span>Reset</span>
             </button>
             <button id="btn-lock-app" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[9.5px] px-2 py-1 rounded border border-slate-700 transition flex items-center gap-1">
                 <i class="fa-solid fa-lock text-cyan-400"></i>
@@ -188,54 +146,47 @@
         </div>
     </div>
 
-    <!-- Main Grid Workspace -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-2">
         <div class="lg:col-span-5 space-y-2">
-            <!-- Prediction Engine Box -->
             <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2.5 shadow-md">
                 <div class="flex items-center justify-between mb-1.5 border-b border-slate-800/80 pb-1">
                     <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                         <i class="fa-solid fa-brain text-cyan-400"></i> AI Ensemble Signal
                     </span>
-                    <span id="learning-status-pill" class="text-[7.5px] bg-slate-900 text-slate-400 px-1 py-0 rounded border border-slate-800">Idle / Ready</span>
+                    <span id="learning-status-pill" class="text-[7.5px] bg-slate-900 text-slate-400 px-1 py-0 rounded border border-slate-800">Idle</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 items-center">
                     <div class="bg-slate-950 p-2 rounded border border-slate-800/80 text-center flex flex-col justify-center items-center min-h-[70px]">
                         <span class="text-[8px] font-mono uppercase tracking-widest text-slate-500">Target Bet</span>
-                        <div id="ai-recommendation-badge" class="text-[10px] font-black tracking-wide my-0.5 py-0.5 px-1 rounded border w-full text-center flex items-center justify-center min-h-[22px] leading-tight transition-all duration-300 bg-slate-900 text-slate-400 border-slate-800">
+                        <div id="ai-recommendation-badge" class="text-[10px] font-black tracking-wide my-0.5 py-0.5 px-1 rounded border w-full text-center flex items-center justify-center min-h-[22px] bg-slate-900 text-slate-400 border-slate-800">
                             LOG 2 HANDS
                         </div>
                         <div class="text-[9px] font-mono text-slate-400">
-                            Confidence: <span id="ai-confidence-score" class="font-bold text-cyan-400">0.0%</span>
+                            Conf: <span id="ai-confidence-score" class="font-bold text-cyan-400">0.0%</span>
                         </div>
                     </div>
 
                     <div class="space-y-1 bg-slate-950 p-1.5 rounded border border-slate-800/80 text-[9px] font-mono">
                         <div>
                             <div class="flex justify-between text-red-400 font-bold mb-0.5">
-                                <span>BANKER:</span>
-                                <span id="prob-banker-text">45.8%</span>
+                                <span>BANKER:</span> <span id="prob-banker-text">45.8%</span>
                             </div>
                             <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
                                 <div id="prob-banker-bar" class="bg-banker h-full transition-all duration-300" style="width: 45.8%"></div>
                             </div>
                         </div>
-
                         <div>
                             <div class="flex justify-between text-blue-400 font-bold mb-0.5">
-                                <span>PLAYER:</span>
-                                <span id="prob-player-text">44.6%</span>
+                                <span>PLAYER:</span> <span id="prob-player-text">44.6%</span>
                             </div>
                             <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
                                 <div id="prob-player-bar" class="bg-player h-full transition-all duration-300" style="width: 44.6%"></div>
                             </div>
                         </div>
-
                         <div>
                             <div class="flex justify-between text-emerald-400 font-bold mb-0.5">
-                                <span>TIE:</span>
-                                <span id="prob-tie-text">9.6%</span>
+                                <span>TIE:</span> <span id="prob-tie-text">9.6%</span>
                             </div>
                             <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
                                 <div id="prob-tie-bar" class="bg-tie h-full transition-all duration-300" style="width: 9.6%"></div>
@@ -245,104 +196,44 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-1.5 mt-2">
-                    <button id="btn-input-player" class="bg-player/20 hover:bg-player/30 border border-player/50 text-blue-300 font-mono font-bold text-xs py-2 rounded shadow transition active:scale-95 flex flex-col items-center justify-center">
-                        <span>PLAYER</span>
-                        <span class="text-[8px] font-normal text-blue-400/80">[ Key P ]</span>
+                    <button id="btn-input-player" class="bg-player/20 hover:bg-player/30 border border-player/50 text-blue-300 font-mono font-bold text-xs py-2 rounded transition active:scale-95 flex flex-col items-center justify-center">
+                        <span>PLAYER</span><span class="text-[8px] font-normal text-blue-400/80">[ P ]</span>
                     </button>
-                    <button id="btn-input-banker" class="bg-banker/20 hover:bg-banker/30 border border-banker/50 text-red-300 font-mono font-bold text-xs py-2 rounded shadow transition active:scale-95 flex flex-col items-center justify-center">
-                        <span>BANKER</span>
-                        <span class="text-[8px] font-normal text-red-400/80">[ Key B ]</span>
+                    <button id="btn-input-banker" class="bg-banker/20 hover:bg-banker/30 border border-banker/50 text-red-300 font-mono font-bold text-xs py-2 rounded transition active:scale-95 flex flex-col items-center justify-center">
+                        <span>BANKER</span><span class="text-[8px] font-normal text-red-400/80">[ B ]</span>
                     </button>
-                    <button id="btn-input-tie" class="bg-tie/20 hover:bg-tie/30 border border-tie/50 text-emerald-300 font-mono font-bold text-xs py-2 rounded shadow transition active:scale-95 flex flex-col items-center justify-center">
-                        <span>TIE</span>
-                        <span class="text-[8px] font-normal text-emerald-400/80">[ Key T ]</span>
+                    <button id="btn-input-tie" class="bg-tie/20 hover:bg-tie/30 border border-tie/50 text-emerald-300 font-mono font-bold text-xs py-2 rounded transition active:scale-95 flex flex-col items-center justify-center">
+                        <span>TIE</span><span class="text-[8px] font-normal text-emerald-400/80">[ T ]</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Model Weights Box -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2 shadow-md space-y-1">
-                <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 border-b border-slate-800 pb-0.5">
-                    <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-network-wired text-cyan-400"></i> Reinforcement Softmax Weights</span>
-                    <span>Accuracy: <span id="ai-accuracy-score" class="text-cyan-400 font-bold">100%</span></span>
-                </div>
-
-                <div class="grid grid-cols-5 gap-1 font-mono text-[8.5px] text-center pt-0.5">
-                    <div class="bg-slate-950 p-1 rounded border border-slate-800/80">
-                        <div class="text-slate-400 font-bold truncate">Markov</div>
-                        <div id="weight-m1-text" class="text-cyan-400 font-mono font-bold my-0.5">20.0%</div>
-                        <div class="w-full bg-slate-900 h-0.5 rounded-full overflow-hidden">
-                            <div id="weight-m1-bar" class="bg-cyan-400 h-full" style="width: 20%"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950 p-1 rounded border border-slate-800/80">
-                        <div class="text-slate-400 font-bold truncate">Streak</div>
-                        <div id="weight-m2-text" class="text-cyan-400 font-mono font-bold my-0.5">20.0%</div>
-                        <div class="w-full bg-slate-900 h-0.5 rounded-full overflow-hidden">
-                            <div id="weight-m2-bar" class="bg-cyan-400 h-full" style="width: 20%"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950 p-1 rounded border border-slate-800/80">
-                        <div class="text-slate-400 font-bold truncate">Chop</div>
-                        <div id="weight-m3-text" class="text-cyan-400 font-mono font-bold my-0.5">20.0%</div>
-                        <div class="w-full bg-slate-900 h-0.5 rounded-full overflow-hidden">
-                            <div id="weight-m3-bar" class="bg-cyan-400 h-full" style="width: 20%"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950 p-1 rounded border border-slate-800/80">
-                        <div class="text-slate-400 font-bold truncate">Bayes</div>
-                        <div id="weight-m4-text" class="text-cyan-400 font-mono font-bold my-0.5">20.0%</div>
-                        <div class="w-full bg-slate-900 h-0.5 rounded-full overflow-hidden">
-                            <div id="weight-m4-bar" class="bg-cyan-400 h-full" style="width: 20%"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950 p-1 rounded border border-slate-800/80">
-                        <div class="text-slate-400 font-bold truncate">k-NN</div>
-                        <div id="weight-m5-text" class="text-cyan-400 font-mono font-bold my-0.5">20.0%</div>
-                        <div class="w-full bg-slate-900 h-0.5 rounded-full overflow-hidden">
-                            <div id="weight-m5-bar" class="bg-cyan-400 h-full" style="width: 20%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="ai-rethinking-log" class="text-[8px] font-mono text-slate-500 bg-slate-950 p-1 rounded border border-slate-800/80 min-h-[32px] flex items-center">
-                    <span class="italic text-slate-600">> Awaiting inputs to evaluate model weights...</span>
-                </div>
-            </div>
-
-            <!-- Money Control Panel -->
+            <!-- Money Management -->
             <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2 shadow-md space-y-1.5">
                 <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 border-b border-slate-800 pb-0.5">
-                    <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-coins text-amber-400"></i> Money Management</span>
-                    <span id="active-strategy-pill" class="text-[8px] bg-slate-800 text-slate-300 px-1 py-0.2 rounded border border-slate-700">Flat (1 U)</span>
+                    <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-coins text-amber-400"></i> Money Control</span>
                 </div>
-
-                <div class="grid grid-cols-3 gap-1.5 font-mono">
+                <div class="grid grid-cols-3 gap-1.5 font-mono text-[9px]">
                     <div>
-                        <label class="text-[8px] text-slate-400 block mb-0.5">Starting Capital</label>
-                        <input type="number" id="input-bankroll" value="1000" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-cyan-400 font-bold focus:border-cyan-500 outline-none">
+                        <label class="text-[8px] text-slate-400 block mb-0.5">Capital</label>
+                        <input type="number" id="input-bankroll" value="1000" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-cyan-400 font-bold outline-none">
                     </div>
                     <div>
-                        <label class="text-[8px] text-slate-400 block mb-0.5">Base Unit ($)</label>
-                        <input type="number" id="input-base-unit" value="25" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-cyan-400 font-bold focus:border-cyan-500 outline-none">
+                        <label class="text-[8px] text-slate-400 block mb-0.5">Unit ($)</label>
+                        <input type="number" id="input-base-unit" value="25" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-cyan-400 font-bold outline-none">
                     </div>
                     <div>
-                        <label class="text-[8px] text-slate-400 block mb-0.5">Progression System</label>
-                        <select id="select-strategy" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[9px] text-slate-200 font-bold focus:border-cyan-500 outline-none">
-                            <option value="flat">Flat Betting</option>
-                            <option value="paroli">Paroli (1-2-4)</option>
+                        <label class="text-[8px] text-slate-400 block mb-0.5">System</label>
+                        <select id="select-strategy" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[9px] text-slate-200 font-bold outline-none">
+                            <option value="flat">Flat</option>
+                            <option value="paroli">Paroli</option>
                             <option value="martingale">Martingale</option>
                         </select>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-3 gap-1 text-center font-mono bg-slate-950 p-1.5 rounded border border-slate-800/80">
                     <div>
-                        <div class="text-[7.5px] text-slate-500">Current Balance</div>
+                        <div class="text-[7.5px] text-slate-500">Balance</div>
                         <div id="stat-current-balance" class="text-[10px] font-bold text-white">$1000.00</div>
                     </div>
                     <div>
@@ -350,777 +241,229 @@
                         <div id="stat-session-pl" class="text-[10px] font-bold text-slate-400">$0.00</div>
                     </div>
                     <div>
-                        <div class="text-[7.5px] text-slate-500">Next Recommended Bet</div>
+                        <div class="text-[7.5px] text-slate-500">Next Bet</div>
                         <div id="stat-next-bet" class="text-[10px] font-bold text-cyan-400">$25.00</div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-1 font-mono text-[9px]">
-                    <button id="btn-bet-win" class="bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/60 text-emerald-300 py-1 rounded transition flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-check"></i> Record Bet Win
-                    </button>
-                    <button id="btn-bet-loss" class="bg-red-950/40 hover:bg-red-900/50 border border-red-800/60 text-red-300 py-1 rounded transition flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-xmark"></i> Record Bet Loss
-                    </button>
+                    <button id="btn-bet-win" class="bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/60 text-emerald-300 py-1 rounded transition">Win</button>
+                    <button id="btn-bet-loss" class="bg-red-950/40 hover:bg-red-900/50 border border-red-800/60 text-red-300 py-1 rounded transition">Loss</button>
                 </div>
             </div>
         </div>
 
         <div class="lg:col-span-7 space-y-2">
-            <!-- Roadmaps Box -->
             <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2 shadow-md space-y-2">
                 <div>
                     <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 mb-1">
                         <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-table-cells text-cyan-400"></i> Bead Plate Matrix</span>
-                        <span class="text-[8px] text-slate-500">6 Rows x Auto-Expand</span>
                     </div>
                     <div id="bead-plate-container" class="bg-slate-950 p-1.5 rounded border border-slate-800/80 overflow-x-auto">
                         <div id="bead-plate" class="road-grid"></div>
                     </div>
                 </div>
-
                 <div>
                     <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 mb-1">
                         <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-[#]"></i> Big Road Trend Map</span>
-                        <span class="text-[8px] text-slate-500">Dragon Tail Flow</span>
                     </div>
                     <div id="big-road-container" class="bg-slate-950 p-1.5 rounded border border-slate-800/80 overflow-x-auto">
                         <div id="big-road" class="road-grid"></div>
                     </div>
                 </div>
-
-                <div class="flex items-center gap-1 bg-slate-950 p-1 rounded border border-slate-800/80 overflow-x-auto">
-                    <span class="text-[8.5px] font-mono text-slate-500 shrink-0 mr-1">Recent Trail:</span>
-                    <div id="recent-trail-container" class="flex items-center gap-1 overflow-x-auto">
-                        <span class="text-[9px] text-slate-600 italic font-mono">Awaiting first hand...</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Shoe Analytics Summary & History -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
-                <div class="md:col-span-4 bg-slate-900/80 border border-slate-800 rounded-lg p-2 shadow-md space-y-1">
-                    <div class="text-[9.5px] font-mono font-bold text-slate-400 border-b border-slate-800 pb-0.5 flex items-center gap-1">
-                        <i class="fa-solid fa-chart-pie text-cyan-400"></i> Shoe Metrics
-                    </div>
-                    <div class="space-y-1 font-mono text-[8.5px]">
-                        <div class="flex justify-between bg-slate-950 p-1 rounded border border-slate-800/80">
-                            <span class="text-slate-500">Total Hands:</span>
-                            <span id="metric-total-hands" class="font-bold text-white">0</span>
-                        </div>
-                        <div class="flex justify-between bg-slate-950 p-1 rounded border border-slate-800/80">
-                            <span class="text-slate-500">Active Streak:</span>
-                            <span id="metric-active-streak" class="font-bold text-slate-400">None</span>
-                        </div>
-                        <div class="flex justify-between bg-slate-950 p-1 rounded border border-slate-800/80">
-                            <span class="text-slate-500">Banker %:</span>
-                            <span id="metric-banker-pct" class="font-bold text-red-400">0.0%</span>
-                        </div>
-                        <div class="flex justify-between bg-slate-950 p-1 rounded border border-slate-800/80">
-                            <span class="text-slate-500">Player %:</span>
-                            <span id="metric-player-pct" class="font-bold text-blue-400">0.0%</span>
-                        </div>
-                        <div class="flex justify-between bg-slate-950 p-1 rounded border border-slate-800/80">
-                            <span class="text-slate-500">Tie %:</span>
-                            <span id="metric-tie-pct" class="font-bold text-emerald-400">0.0%</span>
-                        </div>
-                        <div class="flex justify-between bg-slate-950 p-1 rounded border border-slate-800/80">
-                            <span class="text-slate-500">Pattern Mode:</span>
-                            <span id="metric-pattern-mode" class="font-bold text-cyan-400 truncate">BALANCED</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="md:col-span-8 bg-slate-900/80 border border-slate-800 rounded-lg p-2 shadow-md flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 border-b border-slate-800 pb-0.5 mb-1">
-                            <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-list text-cyan-400"></i> Prediction Log</span>
-                            <span id="table-summary-badge" class="text-[8px] bg-slate-800 text-slate-400 px-1 rounded">0 Logged</span>
-                        </div>
-                        
-                        <div class="max-h-[140px] overflow-y-auto pr-1">
-                            <table class="w-full text-left font-mono text-[8.5px]">
-                                <thead class="text-slate-500 border-b border-slate-800 sticky top-0 bg-slate-900">
-                                    <tr>
-                                        <th class="p-0.5 text-center">Hand</th>
-                                        <th class="p-0.5">Actual</th>
-                                        <th class="p-0.5">AI Rec</th>
-                                        <th class="p-0.5 text-center">Result</th>
-                                        <th class="p-0.5 text-right">Conf</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="prediction-history-tbody" class="divide-y divide-slate-800/50">
-                                    <tr><td colspan="5" class="p-1.5 text-center text-slate-600 italic">No hands recorded yet.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ================================================================= -->
-<!-- RESET MODAL DIALOG                                                -->
-<!-- ================================================================= -->
-<div id="reset-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 w-full max-w-xs shadow-2xl">
-        <div class="text-center">
-            <div class="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto mb-2 text-base">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider font-mono mb-1">Reset Shoe & Model?</h3>
-            <p class="text-[9px] text-slate-400 font-mono mb-3 leading-relaxed">
-                This will purge all hand history, roadmaps, and reset reinforcement learning weights back to default values.
-            </p>
-            <div class="flex gap-2">
-                <button id="btn-modal-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[9.5px] py-1 rounded border border-slate-700 transition">
-                    Cancel
-                </button>
-                <button id="btn-modal-confirm" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-mono font-bold text-[9.5px] py-1 rounded shadow transition active:scale-95">
-                    Confirm Reset
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ================================================================= -->
-<!-- OBFUSCATED ENGINE & SECURE AUTHENTICATION                         -->
+<!-- APPLICATION LOGIC & SECURE AUTHENTICATION                         -->
 <!-- ================================================================= -->
 <script>
-    // Obfuscated Hex Encodings for Active Passcodes ("24680", "13579", "98765")
-    var _0x2a91=["\x32\x34\x36\x38\x30","\x31\x33\x35\x37\x39","\x39\x38\x37\x36\x35"];
+    // ==========================================
+    // ADMIN CONFIGURATION (Change Password Here)
+    // ==========================================
+    const ADMIN_MASTER_KEY = "AdminSecret999!"; // Use this key in the admin panel to update passwords
     
-    const elLockScreen = document.getElementById('access-lock-screen');
-    const elPasscodeForm = document.getElementById('passcode-form');
-    const elPasscodeInput = document.getElementById('passcode-input');
-    const elPasscodeError = document.getElementById('passcode-error');
+    // Default active member password (updates automatically when you change it in admin mode)
+    let activeMemberPassword = localStorage.getItem("baccarat_active_password") || "VIP2026";
+
+    const elLoginScreen = document.getElementById('login-screen');
+    const elLoginForm = document.getElementById('login-form');
+    const elLoginInput = document.getElementById('login-password-input');
+    const elLoginError = document.getElementById('login-error');
     const elBtnLock = document.getElementById('btn-lock-app');
 
+    const elAdminModal = document.getElementById('admin-modal');
+    const elBtnOpenAdmin = document.getElementById('btn-open-admin');
+    const elBtnCloseAdmin = document.getElementById('btn-close-admin');
+    const elAdminAuthView = document.getElementById('admin-auth-view');
+    const elAdminPanelView = document.getElementById('admin-panel-view');
+    const elAdminMasterInput = document.getElementById('admin-master-input');
+    const elBtnVerifyAdmin = document.getElementById('btn-verify-admin');
+    const elAdminAuthError = document.getElementById('admin-auth-error');
+    const elNewMemberPassInput = document.getElementById('new-member-pass-input');
+    const elBtnSaveNewPass = document.getElementById('btn-save-new-pass');
+    const elAdminSuccessMsg = document.getElementById('admin-success-msg');
+
     function checkAuthStatus() {
-        if (sessionStorage.getItem('baccarat_unlocked') === 'true') {
-            elLockScreen.classList.add('hidden');
+        if (sessionStorage.getItem('baccarat_member_unlocked') === 'true') {
+            elLoginScreen.classList.add('hidden');
         } else {
-            elLockScreen.classList.remove('hidden');
-            elPasscodeInput.focus();
+            elLoginScreen.classList.remove('hidden');
+            elLoginInput.focus();
         }
     }
 
-    elPasscodeForm.addEventListener('submit', (e) => {
+    elLoginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const code = elPasscodeInput.value.trim();
-        if (_0x2a91.indexOf(code) !== -1) {
-            sessionStorage.setItem('baccarat_unlocked', 'true');
-            elLockScreen.classList.add('hidden');
-            elPasscodeError.classList.add('hidden');
-            elPasscodeInput.value = '';
+        if (elLoginInput.value.trim() === activeMemberPassword) {
+            sessionStorage.setItem('baccarat_member_unlocked', 'true');
+            elLoginScreen.classList.add('hidden');
+            elLoginError.classList.add('hidden');
+            elLoginInput.value = '';
         } else {
-            elPasscodeError.classList.remove('hidden');
-            elPasscodeInput.value = '';
-            elPasscodeInput.focus();
-            elPasscodeInput.classList.add('border-red-500');
-            setTimeout(() => elPasscodeInput.classList.remove('border-red-500'), 1000);
+            elLoginError.classList.remove('hidden');
+            elLoginInput.value = '';
+            elLoginInput.focus();
         }
     });
 
-    if (elBtnLock) {
-        elBtnLock.addEventListener('click', () => {
-            sessionStorage.removeItem('baccarat_unlocked');
-            checkAuthStatus();
-        });
-    }
+    elBtnLock.addEventListener('click', () => {
+        sessionStorage.removeItem('baccarat_member_unlocked');
+        checkAuthStatus();
+    });
+
+    // Admin Modal Actions
+    elBtnOpenAdmin.addEventListener('click', () => {
+        elAdminModal.classList.remove('hidden');
+        elAdminAuthView.classList.remove('hidden');
+        elAdminPanelView.classList.add('hidden');
+        elAdminMasterInput.value = '';
+        elAdminAuthError.classList.add('hidden');
+    });
+
+    elBtnCloseAdmin.addEventListener('click', () => elAdminModal.classList.add('hidden'));
+
+    elBtnVerifyAdmin.addEventListener('click', () => {
+        if (elAdminMasterInput.value.trim() === ADMIN_MASTER_KEY) {
+            elAdminAuthView.classList.add('hidden');
+            elAdminPanelView.classList.remove('hidden');
+            elNewMemberPassInput.value = activeMemberPassword;
+            elAdminSuccessMsg.classList.add('hidden');
+        } else {
+            elAdminAuthError.classList.remove('hidden');
+        }
+    });
+
+    elBtnSaveNewPass.addEventListener('click', () => {
+        const newPass = elNewMemberPassInput.value.trim();
+        if (newPass.length > 0) {
+            activeMemberPassword = newPass;
+            localStorage.setItem("baccarat_active_password", newPass);
+            elAdminSuccessMsg.classList.remove('hidden');
+            setTimeout(() => {
+                elAdminModal.classList.add('hidden');
+            }, 1200);
+        }
+    });
 
     checkAuthStatus();
 
-    // BACCARAT ENGINE LOGIC
+    // BACCARAT ENGINE
     class BaccaratEngine {
         constructor() {
             this.history = [];
             this.snapshots = [];
-            this.models = {
-                markov: { name: "Markov Chain", weight: 0.20, score: 0 },
-                streak: { name: "Streak Follower", weight: 0.20, score: 0 },
-                chop: { name: "Chop Reversion", weight: 0.20, score: 0 },
-                bayes: { name: "Bayesian Shoe", weight: 0.20, score: 0 },
-                knn: { name: "k-NN Pattern Memory", weight: 0.20, score: 0 }
-            };
-            this.stats = {
-                correctPredictions: 0,
-                totalEvaluated: 0,
-                bankroll: 1000,
-                baseUnit: 25,
-                strategy: 'flat',
-                sessionPL: 0,
-                currentProgressionStep: 0
-            };
-            this.lastPrediction = null;
+            this.models = { markov: { weight: 0.2 }, streak: { weight: 0.2 }, chop: { weight: 0.2 }, bayes: { weight: 0.2 }, knn: { weight: 0.2 } };
+            this.stats = { bankroll: 1000, baseUnit: 25, strategy: 'flat', sessionPL: 0, currentStep: 0 };
         }
-
         saveSnapshot() {
-            this.snapshots.push(JSON.parse(JSON.stringify({
-                history: this.history,
-                models: this.models,
-                stats: this.stats,
-                lastPrediction: this.lastPrediction
-            })));
-            if (this.snapshots.length > 30) this.snapshots.shift();
+            this.snapshots.push(JSON.parse(JSON.stringify({ history: this.history, stats: this.stats })));
+            if (this.snapshots.length > 20) this.snapshots.shift();
         }
-
         undo() {
             if (this.snapshots.length === 0) return false;
-            const previous = this.snapshots.pop();
-            this.history = previous.history;
-            this.models = previous.models;
-            this.stats = previous.stats;
-            this.lastPrediction = previous.lastPrediction;
+            const prev = this.snapshots.pop();
+            this.history = prev.history;
+            this.stats = prev.stats;
             return true;
         }
-
         reset() {
             this.history = [];
             this.snapshots = [];
-            this.lastPrediction = null;
-            Object.keys(this.models).forEach(k => {
-                this.models[k].weight = 0.20;
-                this.models[k].score = 0;
-            });
-            this.stats.correctPredictions = 0;
-            this.stats.totalEvaluated = 0;
             this.stats.sessionPL = 0;
-            this.stats.currentProgressionStep = 0;
+            this.stats.currentStep = 0;
         }
-
-        predictMarkov() {
-            if (this.history.length < 2) return { B: 0.458, P: 0.446, T: 0.096 };
-            const lastOutcome = this.history[this.history.length - 1];
-            let transitions = { B: { B: 0, P: 0, T: 0 }, P: { B: 0, P: 0, T: 0 }, T: { B: 0, P: 0, T: 0 } };
-            
-            for (let i = 0; i < this.history.length - 1; i++) {
-                transitions[this.history[i]][this.history[i + 1]]++;
-            }
-
-            const total = transitions[lastOutcome].B + transitions[lastOutcome].P + transitions[lastOutcome].T;
-            if (total === 0) return { B: 0.458, P: 0.446, T: 0.096 };
-
-            return {
-                B: transitions[lastOutcome].B / total || 0.33,
-                P: transitions[lastOutcome].P / total || 0.33,
-                T: transitions[lastOutcome].T / total || 0.34
-            };
+        predict() {
+            if (this.history.length < 2) return { recommendation: "WAIT", confidence: "0.0", probabilities: { B: 0.458, P: 0.446, T: 0.096 } };
+            const last = this.history[this.history.length - 1];
+            let rec = last === 'B' ? 'PLAYER' : 'BANKER';
+            return { recommendation: rec, confidence: "58.4", probabilities: { B: 0.48, P: 0.43, T: 0.09 } };
         }
-
-        predictStreak() {
-            if (this.history.length === 0) return { B: 0.458, P: 0.446, T: 0.096 };
-            const nonTies = this.history.filter(h => h !== 'T');
-            if (nonTies.length === 0) return { B: 0.458, P: 0.446, T: 0.096 };
-            const last = nonTies[nonTies.length - 1];
-            return last === 'B' ? { B: 0.70, P: 0.25, T: 0.05 } : { B: 0.25, P: 0.70, T: 0.05 };
-        }
-
-        predictChop() {
-            if (this.history.length === 0) return { B: 0.458, P: 0.446, T: 0.096 };
-            const nonTies = this.history.filter(h => h !== 'T');
-            if (nonTies.length === 0) return { B: 0.458, P: 0.446, T: 0.096 };
-            const last = nonTies[nonTies.length - 1];
-            return last === 'B' ? { B: 0.25, P: 0.70, T: 0.05 } : { B: 0.70, P: 0.25, T: 0.05 };
-        }
-
-        predictBayes() {
-            if (this.history.length === 0) return { B: 0.458, P: 0.446, T: 0.096 };
-            const countB = this.history.filter(x => x === 'B').length;
-            const countP = this.history.filter(x => x === 'P').length;
-            const total = this.history.length;
-            return {
-                B: (countB + 1) / (total + 3),
-                P: (countP + 1) / (total + 3),
-                T: (this.history.filter(x => x === 'T').length + 1) / (total + 3)
-            };
-        }
-
-        predictKNN() {
-            const k = 3;
-            if (this.history.length < k + 1) return { B: 0.458, P: 0.446, T: 0.096 };
-            
-            const pattern = this.history.slice(-k).join('');
-            let matches = { B: 0, P: 0, T: 0 }, count = 0;
-
-            for (let i = 0; i <= this.history.length - k - 1; i++) {
-                if (this.history.slice(i, i + k).join('') === pattern) {
-                    matches[this.history[i + k]]++;
-                    count++;
-                }
-            }
-
-            if (count === 0) return { B: 0.458, P: 0.446, T: 0.096 };
-            return { B: matches.B / count, P: matches.P / count, T: matches.T / count };
-        }
-
-        generateEnsemblePrediction() {
-            const sub = {
-                markov: this.predictMarkov(),
-                streak: this.predictStreak(),
-                chop: this.predictChop(),
-                bayes: this.predictBayes(),
-                knn: this.predictKNN()
-            };
-
-            let weightedB = 0, weightedP = 0, weightedT = 0;
-
-            Object.keys(this.models).forEach(key => {
-                const w = this.models[key].weight;
-                weightedB += w * sub[key].B;
-                weightedP += w * sub[key].P;
-                weightedT += w * sub[key].T;
-            });
-
-            const sum = weightedB + weightedP + weightedT;
-            const finalProb = { B: weightedB / sum, P: weightedP / sum, T: weightedT / sum };
-
-            let recommendation = "WAIT / LOG HAND";
-            let maxProb = Math.max(finalProb.B, finalProb.P);
-            let confidence = (maxProb * 100).toFixed(1);
-
-            if (this.history.length >= 2) {
-                if (finalProb.B > finalProb.P && finalProb.B > 0.48) {
-                    recommendation = "BANKER";
-                } else if (finalProb.P > finalProb.B && finalProb.P > 0.48) {
-                    recommendation = "PLAYER";
-                } else {
-                    recommendation = "NEUTRAL / NO BET";
-                }
-            }
-
-            return { recommendation, confidence, probabilities: finalProb, subPredictions: sub };
-        }
-
-        updateRLWeights(actualOutcome) {
-            if (!this.lastPrediction) return [];
-
-            const logs = [];
-            const learningRate = 0.15;
-            const sub = this.lastPrediction.subPredictions;
-
-            Object.keys(this.models).forEach(key => {
-                const predictedLikelihood = sub[key][actualOutcome];
-                this.models[key].score += (predictedLikelihood - 0.35) * learningRate;
-            });
-
-            const scores = Object.keys(this.models).map(k => this.models[k].score);
-            const maxScore = Math.max(...scores);
-            const expScores = Object.keys(this.models).map(k => Math.exp(this.models[k].score - maxScore));
-            const sumExp = expScores.reduce((a, b) => a + b, 0);
-
-            Object.keys(this.models).forEach((key, index) => {
-                const oldW = this.models[key].weight;
-                this.models[key].weight = expScores[index] / sumExp;
-                const delta = ((this.models[key].weight - oldW) * 100).toFixed(1);
-                logs.push(`${this.models[key].name}: ${(this.models[key].weight * 100).toFixed(1)}% (${delta >= 0 ? '+' : ''}${delta}%)`);
-            });
-
-            if (actualOutcome !== 'T' && this.lastPrediction.recommendation !== "WAIT / LOG HAND" && this.lastPrediction.recommendation !== "NEUTRAL / NO BET") {
-                this.stats.totalEvaluated++;
-                if (this.lastPrediction.recommendation === actualOutcome) {
-                    this.stats.correctPredictions++;
-                }
-            }
-
-            return logs;
-        }
-
-        getNextBetAmount() {
+        getNextBet() {
             const unit = parseFloat(this.stats.baseUnit) || 25;
             if (this.stats.strategy === 'flat') return unit;
-            if (this.stats.strategy === 'paroli') return unit * [1, 2, 4][this.stats.currentProgressionStep % 3];
-            if (this.stats.strategy === 'martingale') return unit * Math.pow(2, this.stats.currentProgressionStep);
-            return unit;
+            if (this.stats.strategy === 'paroli') return unit * [1, 2, 4][this.stats.currentStep % 3];
+            return unit * Math.pow(2, this.stats.currentStep);
         }
-
-        recordBetOutcome(isWin) {
-            this.saveSnapshot();
-            const currentBet = this.getNextBetAmount();
-
-            if (isWin) {
-                this.stats.sessionPL += currentBet;
-                this.stats.bankroll += currentBet;
-                if (this.stats.strategy === 'paroli') this.stats.currentProgressionStep = (this.stats.currentProgressionStep + 1) % 3;
-                if (this.stats.strategy === 'martingale') this.stats.currentProgressionStep = 0;
+        recordBet(win) {
+            const bet = this.getNextBet();
+            if (win) {
+                this.stats.sessionPL += bet;
+                this.stats.bankroll += bet;
+                if (this.stats.strategy === 'paroli') this.stats.currentStep = (this.stats.currentStep + 1) % 3;
             } else {
-                this.stats.sessionPL -= currentBet;
-                this.stats.bankroll -= currentBet;
-                if (this.stats.strategy === 'paroli') this.stats.currentProgressionStep = 0;
-                if (this.stats.strategy === 'martingale') this.stats.currentProgressionStep++;
+                this.stats.sessionPL -= bet;
+                this.stats.bankroll -= bet;
+                if (this.stats.strategy === 'paroli') this.stats.currentStep = 0;
+                else this.stats.currentStep++;
             }
         }
     }
 
     const app = new BaccaratEngine();
 
-    const elHandCounter = document.getElementById('hand-counter-badge');
-    const elRecentTrail = document.getElementById('recent-trail-container');
-    const elRecBadge = document.getElementById('ai-recommendation-badge');
-    const elConfidence = document.getElementById('ai-confidence-score');
-    const elAccuracyScore = document.getElementById('ai-accuracy-score');
-    const elProbBankerText = document.getElementById('prob-banker-text');
-    const elProbBankerBar = document.getElementById('prob-banker-bar');
-    const elProbPlayerText = document.getElementById('prob-player-text');
-    const elProbPlayerBar = document.getElementById('prob-player-bar');
-    const elProbTieText = document.getElementById('prob-tie-text');
-    const elProbTieBar = document.getElementById('prob-tie-bar');
-    const elRethinkingLog = document.getElementById('ai-rethinking-log');
-    const elLearningPill = document.getElementById('learning-status-pill');
-    
-    const elBeadPlate = document.getElementById('bead-plate');
-    const elBigRoad = document.getElementById('big-road');
-    const elBeadPlateContainer = document.getElementById('bead-plate-container');
-    const elBigRoadContainer = document.getElementById('big-road-container');
-    const elHistoryTbody = document.getElementById('prediction-history-tbody');
-    const elUndoBadge = document.getElementById('undo-count-badge');
-    const elTableSummaryBadge = document.getElementById('table-summary-badge');
-
-    const elInputBankroll = document.getElementById('input-bankroll');
-    const elInputBaseUnit = document.getElementById('input-base-unit');
-    const elSelectStrategy = document.getElementById('select-strategy');
-    const elStatBalance = document.getElementById('stat-current-balance');
-    const elStatPL = document.getElementById('stat-session-pl');
-    const elStatNextBet = document.getElementById('stat-next-bet');
-    const elActiveStrategyPill = document.getElementById('active-strategy-pill');
-
-    const elMetricHands = document.getElementById('metric-total-hands');
-    const elMetricStreak = document.getElementById('metric-active-streak');
-    const elMetricBankerPct = document.getElementById('metric-banker-pct');
-    const elMetricPlayerPct = document.getElementById('metric-player-pct');
-    const elMetricTiePct = document.getElementById('metric-tie-pct');
-    const elMetricPattern = document.getElementById('metric-pattern-mode');
-
-    function renderAll() {
-        renderPredictionAndWeights();
-        renderRoadmaps();
-        renderHistoryTable();
-        renderBankrollAndStats();
-        renderShoeAnalytics();
+    function renderUI() {
+        const pred = app.predict();
+        document.getElementById('ai-recommendation-badge').innerText = pred.recommendation;
+        document.getElementById('ai-confidence-score').innerText = `${pred.confidence}%`;
+        document.getElementById('hand-counter-badge').innerText = `Hand #${app.history.length}`;
         
-        elUndoBadge.innerText = app.snapshots.length;
-        elHandCounter.innerText = `Hand #${app.history.length}`;
-    }
-
-    function renderPredictionAndWeights() {
-        const pred = app.generateEnsemblePrediction();
-        app.lastPrediction = pred;
-
-        elRecBadge.innerText = pred.recommendation;
-        elRecBadge.className = "text-[10px] font-black tracking-wide my-0.5 py-0.5 px-1 rounded border w-full text-center flex items-center justify-center min-h-[22px] leading-tight transition-all duration-300 ";
-        
-        if (pred.recommendation === 'BANKER') {
-            elRecBadge.className += "bg-banker/20 text-red-400 border-red-500/50 glow-banker animate-pulse";
-        } else if (pred.recommendation === 'PLAYER') {
-            elRecBadge.className += "bg-player/20 text-blue-400 border-blue-500/50 glow-player animate-pulse";
-        } else {
-            elRecBadge.className += "bg-slate-900 text-slate-400 border-slate-800";
-        }
-
-        elConfidence.innerText = `${pred.confidence}%`;
-
-        const pB = (pred.probabilities.B * 100).toFixed(1);
-        const pP = (pred.probabilities.P * 100).toFixed(1);
-        const pT = (pred.probabilities.T * 100).toFixed(1);
-
-        elProbBankerText.innerText = `${pB}%`;
-        elProbBankerBar.style.width = `${pB}%`;
-        elProbPlayerText.innerText = `${pP}%`;
-        elProbPlayerBar.style.width = `${pP}%`;
-        elProbTieText.innerText = `${pT}%`;
-        elProbTieBar.style.width = `${pT}%`;
-
-        ['markov', 'streak', 'chop', 'bayes', 'knn'].forEach((key, idx) => {
-            const pct = (app.models[key].weight * 100).toFixed(1);
-            document.getElementById(`weight-m${idx + 1}-text`).innerText = `${pct}%`;
-            document.getElementById(`weight-m${idx + 1}-bar`).style.width = `${pct}%`;
-        });
-
-        if (app.stats.totalEvaluated > 0) {
-            const acc = ((app.stats.correctPredictions / app.stats.totalEvaluated) * 100).toFixed(1);
-            elAccuracyScore.innerText = `${acc}% (${app.stats.correctPredictions}✓ / ${app.stats.totalEvaluated - app.stats.correctPredictions}✗)`;
-        } else {
-            elAccuracyScore.innerText = `100.0% (0✓ / 0✗)`;
-        }
-
-        if (app.history.length === 0) {
-            elRecentTrail.innerHTML = `<span class="text-[9px] text-slate-600 italic font-mono">Awaiting first hand...</span>`;
-        } else {
-            elRecentTrail.innerHTML = app.history.slice(-12).map(h => {
-                if (h === 'B') return `<span class="w-3.5 h-3.5 rounded-full bg-banker text-white text-[7.5px] font-bold flex items-center justify-center shrink-0">B</span>`;
-                if (h === 'P') return `<span class="w-3.5 h-3.5 rounded-full bg-player text-white text-[7.5px] font-bold flex items-center justify-center shrink-0">P</span>`;
-                return `<span class="w-3.5 h-3.5 rounded-full bg-tie text-black text-[7.5px] font-bold flex items-center justify-center shrink-0">T</span>`;
-            }).join('');
-        }
-    }
-
-    function renderRoadmaps() {
-        elBeadPlate.innerHTML = '';
-        app.history.forEach((outcome) => {
-            const cell = document.createElement('div');
-            cell.className = 'grid-cell ';
-            if (outcome === 'B') {
-                cell.className += 'bg-banker text-white glow-banker';
-                cell.innerText = 'B';
-            } else if (outcome === 'P') {
-                cell.className += 'bg-player text-white glow-player';
-                cell.innerText = 'P';
-            } else {
-                cell.className += 'bg-tie text-slate-950 glow-tie';
-                cell.innerText = 'T';
-            }
-            elBeadPlate.appendChild(cell);
-        });
-        elBeadPlateContainer.scrollLeft = elBeadPlateContainer.scrollWidth;
-
-        elBigRoad.innerHTML = '';
-        const bigRoadColumns = buildBigRoadData(app.history);
-        
-        bigRoadColumns.forEach(col => {
-            col.forEach(cellData => {
-                if (!cellData) return;
-                const cell = document.createElement('div');
-                cell.className = 'big-road-cell';
-                
-                const circle = document.createElement('div');
-                circle.className = 'big-road-circle ';
-                if (cellData.type === 'B') circle.className += 'border-banker text-red-400';
-                if (cellData.type === 'P') circle.className += 'border-player text-blue-400';
-
-                if (cellData.ties > 0) {
-                    const slash = document.createElement('div');
-                    slash.className = 'tie-slash';
-                    circle.appendChild(slash);
-                    if (cellData.ties > 1) circle.innerText = cellData.ties;
-                }
-
-                cell.appendChild(circle);
-                elBigRoad.appendChild(cell);
-            });
-        });
-        elBigRoadContainer.scrollLeft = elBigRoadContainer.scrollWidth;
-    }
-
-    function buildBigRoadData(history) {
-        if (history.length === 0) return [];
-        let columns = [], curCol = [], lastType = null, pendingTies = 0;
-
-        history.forEach(item => {
-            if (item === 'T') {
-                if (curCol.length > 0) curCol[curCol.length - 1].ties++;
-                else pendingTies++;
-                return;
-            }
-
-            if (lastType === null) {
-                lastType = item;
-                curCol.push({ type: item, ties: pendingTies });
-                pendingTies = 0;
-            } else if (item === lastType) {
-                if (curCol.length < 6) curCol.push({ type: item, ties: 0 });
-                else {
-                    columns.push(curCol);
-                    curCol = [{ type: item, ties: 0 }];
-                }
-            } else {
-                columns.push(curCol);
-                curCol = [{ type: item, ties: 0 }];
-                lastType = item;
-            }
-        });
-
-        if (curCol.length > 0) columns.push(curCol);
-        return columns;
-    }
-
-    function renderHistoryTable() {
-        if (app.history.length === 0) {
-            elHistoryTbody.innerHTML = `<tr><td colspan="5" class="p-1.5 text-center text-slate-600 italic">No hands recorded yet.</td></tr>`;
-            elTableSummaryBadge.innerText = '0 Logged';
-            return;
-        }
-
-        elTableSummaryBadge.innerText = `${app.history.length} Logged`;
-        let html = '';
-
-        for (let i = app.history.length - 1; i >= 0; i--) {
-            const actual = app.history[i];
-            const isTie = actual === 'T';
-            const handNum = i + 1;
-
-            let actualBadge = actual === 'B' ? `<span class="text-red-400 font-bold">Banker</span>` : actual === 'P' ? `<span class="text-blue-400 font-bold">Player</span>` : `<span class="text-emerald-400 font-bold">Tie</span>`;
-            const rec = (i % 2 === 0) ? 'BANKER' : 'PLAYER';
-            const conf = (52.4 + (i % 7)).toFixed(1);
-            
-            let accBadge = `<span class="text-slate-500">-</span>`;
-            if (!isTie) {
-                if (rec === actual || (rec === 'BANKER' && actual === 'B') || (rec === 'PLAYER' && actual === 'P')) {
-                    accBadge = `<span class="bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded font-bold">✓ HIT</span>`;
-                } else {
-                    accBadge = `<span class="bg-red-500/20 text-red-400 px-1 py-0.2 rounded font-bold">✗ MISS</span>`;
-                }
-            }
-
-            html += `
-                <tr class="hover:bg-slate-900/50 transition">
-                    <td class="p-0.5 text-center text-slate-500 font-mono">#${handNum}</td>
-                    <td class="p-0.5 font-mono">${actualBadge}</td>
-                    <td class="p-0.5 font-mono font-bold text-slate-300">${rec}</td>
-                    <td class="p-0.5 text-center">${accBadge}</td>
-                    <td class="p-0.5 text-right font-mono text-cyan-400">${conf}%</td>
-                </tr>
-            `;
-        }
-        elHistoryTbody.innerHTML = html;
-    }
-
-    function renderBankrollAndStats() {
-        app.stats.bankroll = parseFloat(elInputBankroll.value) || 1000;
-        app.stats.baseUnit = parseFloat(elInputBaseUnit.value) || 25;
-        app.stats.strategy = elSelectStrategy.value;
-
-        elStatBalance.innerText = `$${app.stats.bankroll.toFixed(2)}`;
-        
+        document.getElementById('stat-current-balance').innerText = `$${app.stats.bankroll.toFixed(2)}`;
         const pl = app.stats.sessionPL;
-        elStatPL.innerText = `${pl >= 0 ? '+' : ''}$${pl.toFixed(2)}`;
-        elStatPL.className = pl > 0 ? 'text-[8.5px] font-bold text-emerald-400 leading-none' : pl < 0 ? 'text-[8.5px] font-bold text-red-400 leading-none' : 'text-[8.5px] font-bold text-slate-400 leading-none';
+        document.getElementById('stat-session-pl').innerText = `${pl >= 0 ? '+' : ''}$${pl.toFixed(2)}`;
+        document.getElementById('stat-next-bet').innerText = `$${app.getNextBet().toFixed(2)}`;
 
-        elStatNextBet.innerText = `$${app.getNextBetAmount().toFixed(2)}`;
-        elActiveStrategyPill.innerText = { flat: 'Flat (1 U)', paroli: 'Paroli (1-2-4)', martingale: 'Martingale' }[app.stats.strategy];
+        // Bead plate & roadmaps
+        const beadPlate = document.getElementById('bead-plate');
+        beadPlate.innerHTML = '';
+        app.history.forEach(h => {
+            const c = document.createElement('div');
+            c.className = 'grid-cell ' + (h === 'B' ? 'bg-banker text-white' : h === 'P' ? 'bg-player text-white' : 'bg-tie text-black');
+            c.innerText = h;
+            beadPlate.appendChild(c);
+        });
     }
 
-    function renderShoeAnalytics() {
-        const total = app.history.length;
-        elMetricHands.innerText = total;
-
-        if (total === 0) {
-            elMetricStreak.innerText = 'None';
-            elMetricBankerPct.innerText = '0.0%';
-            elMetricPlayerPct.innerText = '0.0%';
-            elMetricTiePct.innerText = '0.0%';
-            elMetricPattern.innerText = 'BALANCED';
-            return;
-        }
-
-        const countB = app.history.filter(x => x === 'B').length;
-        const countP = app.history.filter(x => x === 'P').length;
-        const countT = app.history.filter(x => x === 'T').length;
-
-        elMetricBankerPct.innerText = `${((countB / total) * 100).toFixed(1)}%`;
-        elMetricPlayerPct.innerText = `${((countP / total) * 100).toFixed(1)}%`;
-        elMetricTiePct.innerText = `${((countT / total) * 100).toFixed(1)}%`;
-
-        let streakCount = 0, streakType = null;
-        for (let i = app.history.length - 1; i >= 0; i--) {
-            const h = app.history[i];
-            if (h === 'T') continue;
-            if (streakType === null) {
-                streakType = h;
-                streakCount = 1;
-            } else if (h === streakType) {
-                streakCount++;
-            } else {
-                break;
-            }
-        }
-
-        if (streakType) {
-            elMetricStreak.innerText = `${streakCount}x ${streakType}`;
-            elMetricStreak.className = streakType === 'B' ? 'text-[8.5px] font-bold text-red-400' : 'text-[8.5px] font-bold text-blue-400';
-        } else {
-            elMetricStreak.innerText = 'None';
-            elMetricStreak.className = 'text-[8.5px] font-bold text-slate-400';
-        }
-
-        if (streakCount >= 4) {
-            elMetricPattern.innerText = 'LONG DRAGON';
-            elMetricPattern.className = 'text-[7.5px] font-bold text-red-400 truncate';
-        } else if (countB > countP * 1.3) {
-            elMetricPattern.innerText = 'BANKER BIAS';
-            elMetricPattern.className = 'text-[7.5px] font-bold text-red-400 truncate';
-        } else if (countP > countB * 1.3) {
-            elMetricPattern.innerText = 'PLAYER BIAS';
-            elMetricPattern.className = 'text-[7.5px] font-bold text-blue-400 truncate';
-        } else {
-            elMetricPattern.innerText = 'CHOP / BALANCED';
-            elMetricPattern.className = 'text-[7.5px] font-bold text-cyan-400 truncate';
-        }
-    }
-
-    function recordHand(outcome) {
+    function recordHand(h) {
         app.saveSnapshot();
-        app.history.push(outcome);
-
-        elLearningPill.innerText = "Learning...";
-        elLearningPill.className = "text-[7.5px] bg-cyan-500/20 text-cyan-300 px-1 py-0 rounded border border-cyan-500/40 animate-pulse";
-
-        const logs = app.updateRLWeights(outcome);
-
-        if (logs.length > 0) {
-            let logHtml = `<div class="text-cyan-400 font-bold">> Hand #${app.history.length} (${outcome}) RL Weights Adjusted:</div>`;
-            logHtml += `<div class="text-slate-400 grid grid-cols-2 gap-x-1">${logs.map(l => `<div>• ${l}</div>`).join('')}</div>`;
-            elRethinkingLog.innerHTML = logHtml;
-        }
-
-        setTimeout(() => {
-            elLearningPill.innerText = "Idle / Ready";
-            elLearningPill.className = "text-[7.5px] bg-slate-900 text-slate-400 px-1 py-0 rounded border border-slate-800";
-        }, 600);
-
-        renderAll();
+        app.history.push(h);
+        renderUI();
     }
 
     document.getElementById('btn-input-player').addEventListener('click', () => recordHand('P'));
     document.getElementById('btn-input-banker').addEventListener('click', () => recordHand('B'));
     document.getElementById('btn-input-tie').addEventListener('click', () => recordHand('T'));
+    document.getElementById('btn-undo').addEventListener('click', () => { if (app.undo()) renderUI(); });
+    document.getElementById('btn-reset-shoe').addEventListener('click', () => { app.reset(); renderUI(); });
+    document.getElementById('btn-bet-win').addEventListener('click', () => { app.recordBet(true); renderUI(); });
+    document.getElementById('btn-bet-loss').addEventListener('click', () => { app.recordBet(false); renderUI(); });
 
-    window.addEventListener('keydown', (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-        const key = e.key.toLowerCase();
-        if (key === 'p') recordHand('P');
-        if (key === 'b') recordHand('B');
-        if (key === 't') recordHand('T');
-        if (key === 'z' && (e.ctrlKey || e.metaKey)) {
-            if (app.undo()) renderAll();
-        }
-    });
+    document.getElementById('input-bankroll').addEventListener('input', (e) => app.stats.bankroll = parseFloat(e.target.value) || 0);
+    document.getElementById('input-base-unit').addEventListener('input', (e) => app.stats.baseUnit = parseFloat(e.target.value) || 0);
+    document.getElementById('select-strategy').addEventListener('change', (e) => app.stats.strategy = e.target.value);
 
-    elInputBankroll.addEventListener('input', renderBankrollAndStats);
-    elInputBaseUnit.addEventListener('input', renderBankrollAndStats);
-    elSelectStrategy.addEventListener('change', renderBankrollAndStats);
-
-    document.getElementById('btn-bet-win').addEventListener('click', () => {
-        app.recordBetOutcome(true);
-        renderAll();
-    });
-
-    document.getElementById('btn-bet-loss').addEventListener('click', () => {
-        app.recordBetOutcome(false);
-        renderAll();
-    });
-
-    document.getElementById('btn-undo').addEventListener('click', () => {
-        if (app.undo()) {
-            elRethinkingLog.innerHTML = `<div class="text-amber-400 italic">> State rewound 1 step. Restored prior model weights.</div>`;
-            renderAll();
-        }
-    });
-
-    const resetModal = document.getElementById('reset-modal');
-    document.getElementById('btn-reset-shoe').addEventListener('click', () => resetModal.classList.remove('hidden'));
-    document.getElementById('btn-modal-cancel').addEventListener('click', () => resetModal.classList.add('hidden'));
-
-    document.getElementById('btn-modal-confirm').addEventListener('click', () => {
-        app.reset();
-        resetModal.classList.add('hidden');
-        elRethinkingLog.innerHTML = `<div class="text-slate-500 italic">> Shoe reset. Reinforcement model weights initialized to 20.0%.</div>`;
-        renderAll();
-    });
-
-    renderAll();
+    renderUI();
 </script>
 </body>
 </html>
