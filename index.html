@@ -1,469 +1,181 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baccarat AI Ensemble Engine</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        banker: '#ef4444',
-                        player: '#3b82f6',
-                        tie: '#10b981'
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Baccarat AI Learner</title>
     <style>
-        body, html {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: #090d16; color: #f8fafc; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* LOGIN SCREEN */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #090d16; display: flex; justify-content: center; align-items: center; z-index: 9999;
         }
-        .glow-banker { box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
-        .glow-player { box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
-        .glow-tie { box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
-        .road-grid {
-            display: grid;
-            grid-template-rows: repeat(6, 1fr);
-            grid-auto-flow: column;
-            grid-auto-columns: minmax(18px, 18px);
-            gap: 2px;
-        }
-        .grid-cell {
-            width: 18px; height: 18px; font-size: 9px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center; border-radius: 9999px;
-        }
-        .big-road-cell { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .big-road-circle { width: 14px; height: 14px; border-radius: 9999px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 800; }
-        .tie-slash { position: absolute; width: 16px; height: 2px; background-color: #10b981; transform: rotate(-45deg); }
+        .card { background: #111827; border: 1px solid #1f2937; padding: 30px; border-radius: 12px; width: 100%; max-width: 360px; text-align: box; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .card h2 { color: #38bdf8; margin-bottom: 10px; font-size: 20px; }
+        .card p { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+        .input-box { width: 100%; padding: 12px; background: #030712; border: 1px solid #374151; color: #fff; border-radius: 6px; font-size: 16px; margin-bottom: 15px; outline: none; text-align: center; letter-spacing: 2px; }
+        .btn { width: 100%; padding: 12px; background: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: #0ea5e9; }
+        .error { color: #f87171; font-size: 12px; margin-top: 10px; display: none; }
+        .admin-link { margin-top: 15px; text-align: center; font-size: 12px; color: #94a3b8; }
+        .admin-link a { color: #38bdf8; cursor: pointer; text-decoration: underline; }
+
+        /* APP CONTENT */
+        #app-content { display: none; width: 100%; max-width: 600px; }
+        .app-box { background: #111827; border: 1px solid #1f2937; padding: 25px; border-radius: 12px; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #1f2937; padding-bottom: 10px; }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-p { background: #2563eb; } .btn-b { background: #dc2626; } .btn-t { background: #059669; }
+        .btn-action { flex: 1; padding: 15px; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .history-box { background: #030712; padding: 15px; border-radius: 6px; min-height: 80px; margin-bottom: 15px; word-break: break-all; font-family: monospace; }
+        .logout-btn { background: transparent; border: 1px solid #4b5563; color: #94a3b8; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     </style>
 </head>
-<body class="h-full bg-slate-950 font-sans text-slate-100 flex flex-col justify-between p-2 overflow-x-hidden">
+<body>
 
-<!-- ================================================================= -->
-<!-- MEMBER LOGIN GATE SCREEN                                          -->
-<!-- ================================================================= -->
-<div id="login-screen" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center">
-        <div class="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mx-auto mb-3 text-lg">
-            <i class="fa-solid fa-lock"></i>
-        </div>
-
-        <h2 class="text-base font-bold text-white font-mono tracking-wide uppercase mb-1">MEMBER ACCESS</h2>
-        <p class="text-[11px] text-slate-400 font-mono mb-4">Enter the active member password to unlock the learner.</p>
-
-        <form id="login-form" class="space-y-4">
-            <div>
-                <input 
-                    type="password" 
-                    id="login-password-input" 
-                    required 
-                    autocomplete="current-password"
-                    class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-500 text-center font-mono text-xl tracking-widest text-cyan-400 py-2.5 rounded-lg outline-none transition placeholder:text-slate-700" 
-                    placeholder="Enter Password"
-                >
-            </div>
-
-            <div id="login-error" class="text-red-400 text-[10px] font-mono hidden bg-red-500/10 border border-red-500/20 py-1 rounded">
-                <i class="fa-solid fa-circle-exclamation mr-1"></i> Incorrect password.
-            </div>
-
-            <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs py-2.5 rounded-lg shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-                <span>UNLOCK LEARNER</span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-        </form>
-
-        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px] font-mono text-slate-500">
-            <span>Admin Control:</span>
-            <button id="btn-open-admin" class="text-cyan-400 hover:underline">Admin Login</button>
-        </div>
-    </div>
-</div>
-
-<!-- ================================================================= -->
-<!-- ADMIN PANEL MODAL (To change password weekly/bi-weekly)             -->
-<!-- ================================================================= -->
-<div id="admin-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-        <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
-            <h3 class="text-xs font-bold text-cyan-400 uppercase font-mono"><i class="fa-solid fa-user-shield mr-1"></i> Admin Password Manager</h3>
-            <button id="btn-close-admin" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-
-        <div id="admin-auth-view" class="space-y-3">
-            <p class="text-[10px] text-slate-400 font-mono">Enter Admin Master Key to change the member password:</p>
-            <input type="password" id="admin-master-input" placeholder="Admin Key" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white font-mono outline-none focus:border-cyan-500">
-            <button id="btn-verify-admin" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs py-2 rounded">Authenticate Admin</button>
-            <div id="admin-auth-error" class="text-red-400 text-[10px] font-mono hidden">Invalid Master Key.</div>
-        </div>
-
-        <div id="admin-panel-view" class="space-y-3 hidden">
-            <div>
-                <label class="text-[10px] text-slate-400 font-mono block mb-1">Set New Member Password:</label>
-                <input type="text" id="new-member-pass-input" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-cyan-400 font-mono font-bold outline-none focus:border-cyan-500">
-            </div>
-            <div id="admin-success-msg" class="text-emerald-400 text-[10px] font-mono hidden"><i class="fa-solid fa-check mr-1"></i> Password updated successfully!</div>
-            <button id="btn-save-new-pass" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs py-2 rounded shadow">Update Password</button>
-        </div>
-    </div>
-</div>
-
-<!-- ================================================================= -->
-<!-- MAIN BACCARAT LEARNER DASHBOARD                                   -->
-<!-- ================================================================= -->
-<div class="max-w-7xl w-full mx-auto space-y-2">
-    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 shadow-lg">
-        <div class="flex items-center gap-2">
-            <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></div>
-            <h1 class="text-xs font-black tracking-widest text-white uppercase font-mono">BACCARAT AI LEARNER</h1>
-            <span id="hand-counter-badge" class="bg-slate-800 border border-slate-700 text-cyan-400 font-mono text-[9px] px-1.5 py-0.5 rounded font-bold">Hand #0</span>
-        </div>
-        
-        <div class="flex items-center gap-1.5">
-            <button id="btn-undo" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[9.5px] px-2 py-1 rounded border border-slate-700 transition flex items-center gap-1">
-                <i class="fa-solid fa-rotate-left text-amber-400"></i>
-                <span>Undo</span>
-            </button>
-            <button id="btn-reset-shoe" class="bg-slate-800 hover:bg-red-950/40 text-red-400 font-mono text-[9.5px] px-2 py-1 rounded border border-slate-700 transition flex items-center gap-1">
-                <i class="fa-solid fa-trash-can"></i>
-                <span>Reset</span>
-            </button>
-            <button id="btn-lock-app" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[9.5px] px-2 py-1 rounded border border-slate-700 transition flex items-center gap-1">
-                <i class="fa-solid fa-lock text-cyan-400"></i>
-                <span>Lock</span>
-            </button>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-2">
-        <div class="lg:col-span-5 space-y-2">
-            <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2.5 shadow-md">
-                <div class="flex items-center justify-between mb-1.5 border-b border-slate-800/80 pb-1">
-                    <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                        <i class="fa-solid fa-brain text-cyan-400"></i> AI Ensemble Signal
-                    </span>
-                    <span id="learning-status-pill" class="text-[7.5px] bg-slate-900 text-slate-400 px-1 py-0 rounded border border-slate-800">Idle</span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 items-center">
-                    <div class="bg-slate-950 p-2 rounded border border-slate-800/80 text-center flex flex-col justify-center items-center min-h-[70px]">
-                        <span class="text-[8px] font-mono uppercase tracking-widest text-slate-500">Target Bet</span>
-                        <div id="ai-recommendation-badge" class="text-[10px] font-black tracking-wide my-0.5 py-0.5 px-1 rounded border w-full text-center flex items-center justify-center min-h-[22px] bg-slate-900 text-slate-400 border-slate-800">
-                            LOG 2 HANDS
-                        </div>
-                        <div class="text-[9px] font-mono text-slate-400">
-                            Conf: <span id="ai-confidence-score" class="font-bold text-cyan-400">0.0%</span>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1 bg-slate-950 p-1.5 rounded border border-slate-800/80 text-[9px] font-mono">
-                        <div>
-                            <div class="flex justify-between text-red-400 font-bold mb-0.5">
-                                <span>BANKER:</span> <span id="prob-banker-text">45.8%</span>
-                            </div>
-                            <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
-                                <div id="prob-banker-bar" class="bg-banker h-full transition-all duration-300" style="width: 45.8%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-blue-400 font-bold mb-0.5">
-                                <span>PLAYER:</span> <span id="prob-player-text">44.6%</span>
-                            </div>
-                            <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
-                                <div id="prob-player-bar" class="bg-player h-full transition-all duration-300" style="width: 44.6%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-emerald-400 font-bold mb-0.5">
-                                <span>TIE:</span> <span id="prob-tie-text">9.6%</span>
-                            </div>
-                            <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
-                                <div id="prob-tie-bar" class="bg-tie h-full transition-all duration-300" style="width: 9.6%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-1.5 mt-2">
-                    <button id="btn-input-player" class="bg-player/20 hover:bg-player/30 border border-player/50 text-blue-300 font-mono font-bold text-xs py-2 rounded transition active:scale-95 flex flex-col items-center justify-center">
-                        <span>PLAYER</span><span class="text-[8px] font-normal text-blue-400/80">[ P ]</span>
-                    </button>
-                    <button id="btn-input-banker" class="bg-banker/20 hover:bg-banker/30 border border-banker/50 text-red-300 font-mono font-bold text-xs py-2 rounded transition active:scale-95 flex flex-col items-center justify-center">
-                        <span>BANKER</span><span class="text-[8px] font-normal text-red-400/80">[ B ]</span>
-                    </button>
-                    <button id="btn-input-tie" class="bg-tie/20 hover:bg-tie/30 border border-tie/50 text-emerald-300 font-mono font-bold text-xs py-2 rounded transition active:scale-95 flex flex-col items-center justify-center">
-                        <span>TIE</span><span class="text-[8px] font-normal text-emerald-400/80">[ T ]</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Money Management -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2 shadow-md space-y-1.5">
-                <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 border-b border-slate-800 pb-0.5">
-                    <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-coins text-amber-400"></i> Money Control</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1.5 font-mono text-[9px]">
-                    <div>
-                        <label class="text-[8px] text-slate-400 block mb-0.5">Capital</label>
-                        <input type="number" id="input-bankroll" value="1000" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-cyan-400 font-bold outline-none">
-                    </div>
-                    <div>
-                        <label class="text-[8px] text-slate-400 block mb-0.5">Unit ($)</label>
-                        <input type="number" id="input-base-unit" value="25" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-cyan-400 font-bold outline-none">
-                    </div>
-                    <div>
-                        <label class="text-[8px] text-slate-400 block mb-0.5">System</label>
-                        <select id="select-strategy" class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[9px] text-slate-200 font-bold outline-none">
-                            <option value="flat">Flat</option>
-                            <option value="paroli">Paroli</option>
-                            <option value="martingale">Martingale</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-1 text-center font-mono bg-slate-950 p-1.5 rounded border border-slate-800/80">
-                    <div>
-                        <div class="text-[7.5px] text-slate-500">Balance</div>
-                        <div id="stat-current-balance" class="text-[10px] font-bold text-white">$1000.00</div>
-                    </div>
-                    <div>
-                        <div class="text-[7.5px] text-slate-500">Session P/L</div>
-                        <div id="stat-session-pl" class="text-[10px] font-bold text-slate-400">$0.00</div>
-                    </div>
-                    <div>
-                        <div class="text-[7.5px] text-slate-500">Next Bet</div>
-                        <div id="stat-next-bet" class="text-[10px] font-bold text-cyan-400">$25.00</div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-1 font-mono text-[9px]">
-                    <button id="btn-bet-win" class="bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/60 text-emerald-300 py-1 rounded transition">Win</button>
-                    <button id="btn-bet-loss" class="bg-red-950/40 hover:bg-red-900/50 border border-red-800/60 text-red-300 py-1 rounded transition">Loss</button>
-                </div>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="card" id="member-login-card">
+            <h2>Member Access</h2>
+            <p>Enter the shared member password to use the learner.</p>
+            <input type="password" id="member-pass" class="input-box" placeholder="••••••••">
+            <button class="btn" onclick="loginMember()">Unlock Learner</button>
+            <div id="login-error" class="error">Incorrect password. Please try again.</div>
+            <div class="admin-link">
+                Are you the admin? <a onclick="showAdminLogin()">Click here</a>
             </div>
         </div>
 
-        <div class="lg:col-span-7 space-y-2">
-            <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2 shadow-md space-y-2">
-                <div>
-                    <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 mb-1">
-                        <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-table-cells text-cyan-400"></i> Bead Plate Matrix</span>
-                    </div>
-                    <div id="bead-plate-container" class="bg-slate-950 p-1.5 rounded border border-slate-800/80 overflow-x-auto">
-                        <div id="bead-plate" class="road-grid"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="flex items-center justify-between text-[9.5px] font-mono text-slate-400 mb-1">
-                        <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-[#]"></i> Big Road Trend Map</span>
-                    </div>
-                    <div id="big-road-container" class="bg-slate-950 p-1.5 rounded border border-slate-800/80 overflow-x-auto">
-                        <div id="big-road" class="road-grid"></div>
-                    </div>
-                </div>
+        <!-- ADMIN LOGIN CARD (Hidden by default) -->
+        <div class="card" id="admin-login-card" style="display: none;">
+            <h2>Admin Control</h2>
+            <p>Enter the Admin Master Key to change the password.</p>
+            <input type="password" id="admin-key" class="input-box" placeholder="Master Key">
+            <button class="btn" style="background: #475569;" onclick="verifyAdmin()">Open Admin Panel</button>
+            <div id="admin-error" class="error">Invalid Master Key.</div>
+            <div class="admin-link">
+                <a onclick="showMemberLogin()">Back to Member Login</a>
+            </div>
+        </div>
+
+        <!-- ADMIN UPDATE CARD (Hidden by default) -->
+        <div class="card" id="admin-update-card" style="display: none;">
+            <h2>Change Password</h2>
+            <p>Set a new password for all members.</p>
+            <input type="text" id="new-member-pass" class="input-box" placeholder="New Password">
+            <button class="btn" style="background: #16a34a;" onclick="saveNewPassword()">Save New Password</button>
+            <div id="success-msg" style="color: #4ade80; font-size: 12px; margin-top: 10px; display: none;">Password updated successfully!</div>
+            <div class="admin-link" style="margin-top: 15px;">
+                <a onclick="showMemberLogin()">Close / Exit</a>
             </div>
         </div>
     </div>
-</div>
 
-<!-- ================================================================= -->
-<!-- APPLICATION LOGIC & SECURE AUTHENTICATION                         -->
-<!-- ================================================================= -->
-<script>
-    // ==========================================
-    // ADMIN CONFIGURATION (Change Password Here)
-    // ==========================================
-    const ADMIN_MASTER_KEY = "AdminSecret999!"; // Use this key in the admin panel to update passwords
-    
-    // Default active member password (updates automatically when you change it in admin mode)
-    let activeMemberPassword = localStorage.getItem("baccarat_active_password") || "VIP2026";
+    <!-- ACTUAL LEARNER APP -->
+    <div id="app-content">
+        <div class="app-box">
+            <div class="app-header">
+                <h3>Baccarat AI Learner</h3>
+                <button class="logout-btn" onclick="logout()">Lock App</button>
+            </div>
+            
+            <p style="margin-bottom: 10px; font-size: 14px; color: #94a3b8;">Log shoe results:</p>
+            <div class="btn-group">
+                <button class="btn-action btn-p" onclick="record('P')">Player</button>
+                <button class="btn-action btn-b" onclick="record('B')">Banker</button>
+                <button class="btn-action btn-t" onclick="record('T')">Tie</button>
+            </div>
 
-    const elLoginScreen = document.getElementById('login-screen');
-    const elLoginForm = document.getElementById('login-form');
-    const elLoginInput = document.getElementById('login-password-input');
-    const elLoginError = document.getElementById('login-error');
-    const elBtnLock = document.getElementById('btn-lock-app');
+            <p style="margin-bottom: 5px; font-size: 12px; color: #94a3b8;">Recorded History:</p>
+            <div id="history-display" class="history-box">No hands recorded yet...</div>
+            <button class="logout-btn" onclick="resetHistory()" style="background: #7f1d1d; border-color: #991b1b; color: #fca5a5;">Reset History</button>
+        </div>
+    </div>
 
-    const elAdminModal = document.getElementById('admin-modal');
-    const elBtnOpenAdmin = document.getElementById('btn-open-admin');
-    const elBtnCloseAdmin = document.getElementById('btn-close-admin');
-    const elAdminAuthView = document.getElementById('admin-auth-view');
-    const elAdminPanelView = document.getElementById('admin-panel-view');
-    const elAdminMasterInput = document.getElementById('admin-master-input');
-    const elBtnVerifyAdmin = document.getElementById('btn-verify-admin');
-    const elAdminAuthError = document.getElementById('admin-auth-error');
-    const elNewMemberPassInput = document.getElementById('new-member-pass-input');
-    const elBtnSaveNewPass = document.getElementById('btn-save-new-pass');
-    const elAdminSuccessMsg = document.getElementById('admin-success-msg');
+    <script>
+        // MASTER KEYS CONFIGURATION
+        const MASTER_ADMIN_KEY = "AdminSecret999!"; // Use this to access admin panel
+        let currentPassword = localStorage.getItem("shared_password") || "VIP2026"; // Default password
+        let historyData = [];
 
-    function checkAuthStatus() {
-        if (sessionStorage.getItem('baccarat_member_unlocked') === 'true') {
-            elLoginScreen.classList.add('hidden');
-        } else {
-            elLoginScreen.classList.remove('hidden');
-            elLoginInput.focus();
-        }
-    }
+        // Check if already logged in this session
+        window.onload = function() {
+            if (sessionStorage.getItem("isLoggedIn") === "true") {
+                unlockApp();
+            }
+        };
 
-    elLoginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (elLoginInput.value.trim() === activeMemberPassword) {
-            sessionStorage.setItem('baccarat_member_unlocked', 'true');
-            elLoginScreen.classList.add('hidden');
-            elLoginError.classList.add('hidden');
-            elLoginInput.value = '';
-        } else {
-            elLoginError.classList.remove('hidden');
-            elLoginInput.value = '';
-            elLoginInput.focus();
-        }
-    });
-
-    elBtnLock.addEventListener('click', () => {
-        sessionStorage.removeItem('baccarat_member_unlocked');
-        checkAuthStatus();
-    });
-
-    // Admin Modal Actions
-    elBtnOpenAdmin.addEventListener('click', () => {
-        elAdminModal.classList.remove('hidden');
-        elAdminAuthView.classList.remove('hidden');
-        elAdminPanelView.classList.add('hidden');
-        elAdminMasterInput.value = '';
-        elAdminAuthError.classList.add('hidden');
-    });
-
-    elBtnCloseAdmin.addEventListener('click', () => elAdminModal.classList.add('hidden'));
-
-    elBtnVerifyAdmin.addEventListener('click', () => {
-        if (elAdminMasterInput.value.trim() === ADMIN_MASTER_KEY) {
-            elAdminAuthView.classList.add('hidden');
-            elAdminPanelView.classList.remove('hidden');
-            elNewMemberPassInput.value = activeMemberPassword;
-            elAdminSuccessMsg.classList.add('hidden');
-        } else {
-            elAdminAuthError.classList.remove('hidden');
-        }
-    });
-
-    elBtnSaveNewPass.addEventListener('click', () => {
-        const newPass = elNewMemberPassInput.value.trim();
-        if (newPass.length > 0) {
-            activeMemberPassword = newPass;
-            localStorage.setItem("baccarat_active_password", newPass);
-            elAdminSuccessMsg.classList.remove('hidden');
-            setTimeout(() => {
-                elAdminModal.classList.add('hidden');
-            }, 1200);
-        }
-    });
-
-    checkAuthStatus();
-
-    // BACCARAT ENGINE
-    class BaccaratEngine {
-        constructor() {
-            this.history = [];
-            this.snapshots = [];
-            this.models = { markov: { weight: 0.2 }, streak: { weight: 0.2 }, chop: { weight: 0.2 }, bayes: { weight: 0.2 }, knn: { weight: 0.2 } };
-            this.stats = { bankroll: 1000, baseUnit: 25, strategy: 'flat', sessionPL: 0, currentStep: 0 };
-        }
-        saveSnapshot() {
-            this.snapshots.push(JSON.parse(JSON.stringify({ history: this.history, stats: this.stats })));
-            if (this.snapshots.length > 20) this.snapshots.shift();
-        }
-        undo() {
-            if (this.snapshots.length === 0) return false;
-            const prev = this.snapshots.pop();
-            this.history = prev.history;
-            this.stats = prev.stats;
-            return true;
-        }
-        reset() {
-            this.history = [];
-            this.snapshots = [];
-            this.stats.sessionPL = 0;
-            this.stats.currentStep = 0;
-        }
-        predict() {
-            if (this.history.length < 2) return { recommendation: "WAIT", confidence: "0.0", probabilities: { B: 0.458, P: 0.446, T: 0.096 } };
-            const last = this.history[this.history.length - 1];
-            let rec = last === 'B' ? 'PLAYER' : 'BANKER';
-            return { recommendation: rec, confidence: "58.4", probabilities: { B: 0.48, P: 0.43, T: 0.09 } };
-        }
-        getNextBet() {
-            const unit = parseFloat(this.stats.baseUnit) || 25;
-            if (this.stats.strategy === 'flat') return unit;
-            if (this.stats.strategy === 'paroli') return unit * [1, 2, 4][this.stats.currentStep % 3];
-            return unit * Math.pow(2, this.stats.currentStep);
-        }
-        recordBet(win) {
-            const bet = this.getNextBet();
-            if (win) {
-                this.stats.sessionPL += bet;
-                this.stats.bankroll += bet;
-                if (this.stats.strategy === 'paroli') this.stats.currentStep = (this.stats.currentStep + 1) % 3;
+        function loginMember() {
+            const input = document.getElementById("member-pass").value;
+            if (input === currentPassword) {
+                sessionStorage.setItem("isLoggedIn", "true");
+                unlockApp();
             } else {
-                this.stats.sessionPL -= bet;
-                this.stats.bankroll -= bet;
-                if (this.stats.strategy === 'paroli') this.stats.currentStep = 0;
-                else this.stats.currentStep++;
+                document.getElementById("login-error").style.display = "block";
             }
         }
-    }
 
-    const app = new BaccaratEngine();
+        function unlockApp() {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("app-content").style.display = "block";
+        }
 
-    function renderUI() {
-        const pred = app.predict();
-        document.getElementById('ai-recommendation-badge').innerText = pred.recommendation;
-        document.getElementById('ai-confidence-score').innerText = `${pred.confidence}%`;
-        document.getElementById('hand-counter-badge').innerText = `Hand #${app.history.length}`;
-        
-        document.getElementById('stat-current-balance').innerText = `$${app.stats.bankroll.toFixed(2)}`;
-        const pl = app.stats.sessionPL;
-        document.getElementById('stat-session-pl').innerText = `${pl >= 0 ? '+' : ''}$${pl.toFixed(2)}`;
-        document.getElementById('stat-next-bet').innerText = `$${app.getNextBet().toFixed(2)}`;
+        function logout() {
+            sessionStorage.removeItem("isLoggedIn");
+            location.reload();
+        }
 
-        // Bead plate & roadmaps
-        const beadPlate = document.getElementById('bead-plate');
-        beadPlate.innerHTML = '';
-        app.history.forEach(h => {
-            const c = document.createElement('div');
-            c.className = 'grid-cell ' + (h === 'B' ? 'bg-banker text-white' : h === 'P' ? 'bg-player text-white' : 'bg-tie text-black');
-            c.innerText = h;
-            beadPlate.appendChild(c);
-        });
-    }
+        // Admin Navigation Functions
+        function showAdminLogin() {
+            document.getElementById("member-login-card").style.display = "none";
+            document.getElementById("admin-login-card").style.display = "block";
+        }
 
-    function recordHand(h) {
-        app.saveSnapshot();
-        app.history.push(h);
-        renderUI();
-    }
+        function showMemberLogin() {
+            document.getElementById("admin-login-card").style.display = "none";
+            document.getElementById("admin-update-card").style.display = "none";
+            document.getElementById("member-login-card").style.display = "block";
+            document.getElementById("login-error").style.display = "none";
+            document.getElementById("admin-error").style.display = "none";
+        }
 
-    document.getElementById('btn-input-player').addEventListener('click', () => recordHand('P'));
-    document.getElementById('btn-input-banker').addEventListener('click', () => recordHand('B'));
-    document.getElementById('btn-input-tie').addEventListener('click', () => recordHand('T'));
-    document.getElementById('btn-undo').addEventListener('click', () => { if (app.undo()) renderUI(); });
-    document.getElementById('btn-reset-shoe').addEventListener('click', () => { app.reset(); renderUI(); });
-    document.getElementById('btn-bet-win').addEventListener('click', () => { app.recordBet(true); renderUI(); });
-    document.getElementById('btn-bet-loss').addEventListener('click', () => { app.recordBet(false); renderUI(); });
+        function verifyAdmin() {
+            const keyInput = document.getElementById("admin-key").value;
+            if (keyInput === MASTER_ADMIN_KEY) {
+                document.getElementById("admin-login-card").style.display = "none";
+                document.getElementById("admin-update-card").style.display = "block";
+                document.getElementById("new-member-pass").value = currentPassword;
+            } else {
+                document.getElementById("admin-error").style.display = "block";
+            }
+        }
 
-    document.getElementById('input-bankroll').addEventListener('input', (e) => app.stats.bankroll = parseFloat(e.target.value) || 0);
-    document.getElementById('input-base-unit').addEventListener('input', (e) => app.stats.baseUnit = parseFloat(e.target.value) || 0);
-    document.getElementById('select-strategy').addEventListener('change', (e) => app.stats.strategy = e.target.value);
+        function saveNewPassword() {
+            const newPass = document.getElementById("new-member-pass").value.trim();
+            if (newPass.length > 0) {
+                currentPassword = newPass;
+                localStorage.setItem("shared_password", newPass);
+                document.getElementById("success-msg").style.display = "block";
+                setTimeout(() => {
+                    showMemberLogin();
+                    document.getElementById("success-msg").style.display = "none";
+                }, 1500);
+            }
+        }
 
-    renderUI();
-</script>
+        // Learner Functions
+        function record(result) {
+            historyData.push(result);
+            document.getElementById("history-display").innerText = historyData.join(" - ");
+        }
+
+        function resetHistory() {
+            historyData = [];
+            document.getElementById("history-display").innerText = "No hands recorded yet...";
+        }
+    </script>
 </body>
 </html>
