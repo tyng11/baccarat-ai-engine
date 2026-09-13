@@ -51,13 +51,6 @@
     </script>
 
     <style>
-        /* Anti-Copy & Anti-Highlight Styles */
-        body {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         .glow-banker { box-shadow: 0 0 10px rgba(255, 46, 99, 0.35); }
@@ -108,7 +101,7 @@
     </style>
 </head>
 
-<body class="bg-cyber-bg text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-transparent selection:text-transparent">
+<body class="bg-cyber-bg text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-cyan-500 selection:text-black">
 
     <!-- ================= LOGIN SCREEN OVERLAY ================= -->
     <div id="login-screen" class="fixed inset-0 bg-[#070A11] flex justify-center items-center z-50 p-4">
@@ -149,7 +142,7 @@
         </div>
     </div>
 
-    <!-- ================= ACTUAL PREDICTOR APP ================= -->
+    <!-- ================= ACTUAL PREDICTOR APP (Hidden until login) ================= -->
     <div id="app-content" style="display: none;" class="flex flex-col h-full w-full">
         <!-- Header -->
         <header class="h-7 bg-cyber-card border-b border-cyber-border px-2 flex items-center justify-between shrink-0 z-30">
@@ -484,20 +477,8 @@
         </main>
     </div>
 
-    <!-- ================= PROTECTED APP ENGINE SCRIPT ================= -->
+    <!-- ================= APP PREDICTOR SCRIPT ENGINE ================= -->
     <script>
-        // Anti-Inspection & Anti-Copy Deterrents
-        document.addEventListener('contextmenu', event => event.preventDefault()); // Disables right-click
-        document.addEventListener('keydown', event => {
-            // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-            if (event.key === 'F12' || 
-                (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'J' || event.key === 'C')) || 
-                (event.ctrlKey && event.key === 'u')) {
-                event.preventDefault();
-                return false;
-            }
-        });
-
         // MASTER ACCESS & LOGIN LOGIC
         const MASTER_ADMIN_KEY = "AdminSecret999!";
         let currentPassword = localStorage.getItem("shared_password") || "VIP2026";
@@ -639,6 +620,7 @@
         }
 
         function recordHand(outcome) {
+            // Evaluate prior prediction accuracy if available
             if (currentPrediction) {
                 totalPredictions++;
                 if (currentPrediction === outcome || (outcome === 'T')) {
@@ -656,6 +638,7 @@
 
         function calculateEnsemblePrediction() {
             if (shoeHistory.length < 3) return Math.random() > 0.5 ? 'B' : 'P';
+            // Simple model logic voting aggregator
             let bScore = modelWeights[0] * 0.5 + modelWeights[1] * 0.6 + modelWeights[4] * 0.5;
             let pScore = modelWeights[2] * 0.5 + modelWeights[3] * 0.5;
             return bScore >= pScore ? 'B' : 'P';
@@ -667,6 +650,7 @@
                 modelWeights[i] += (Math.random() - 0.5) * 0.05 + reward;
                 if (modelWeights[i] < 0.05) modelWeights[i] = 0.05;
             }
+            // Normalize
             let sum = modelWeights.reduce((a, b) => a + b, 0);
             modelWeights = modelWeights.map(w => w / sum);
         }
@@ -696,6 +680,7 @@
             document.getElementById("metric-total-hands").innerText = shoeHistory.length;
             document.getElementById("undo-count-badge").innerText = shoeHistory.length;
 
+            // Render Trail
             const trailDiv = document.getElementById("recent-trail-container");
             if (shoeHistory.length === 0) {
                 trailDiv.innerHTML = '<span class="text-[9px] text-slate-600 italic font-mono">Awaiting first hand...</span>';
@@ -706,6 +691,7 @@
                 }).join('');
             }
 
+            // Recommendation update
             const recBadge = document.getElementById("ai-recommendation-badge");
             if (currentPrediction) {
                 let text = currentPrediction === 'B' ? 'BANKER (B)' : 'PLAYER (P)';
@@ -717,9 +703,11 @@
                 recBadge.innerText = "WAIT / LOG HAND";
             }
 
+            // Accuracy Display
             let acc = totalPredictions > 0 ? ((correctPredictions / totalPredictions) * 100).toFixed(1) : "100.0";
             document.getElementById("ai-accuracy-score").innerText = `${acc}% (${correctPredictions}✓ / ${totalPredictions - correctPredictions}✗)`;
 
+            // Weights update
             for (let i = 0; i < 5; i++) {
                 let pct = (modelWeights[i] * 100).toFixed(1) + "%";
                 document.getElementById(`weight-m${i+1}-text`).innerText = pct;
