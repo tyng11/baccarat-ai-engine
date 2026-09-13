@@ -52,7 +52,7 @@
 
     <style>
         ::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; user-select: none; -webkit-user-select: none; }
         .glow-banker { box-shadow: 0 0 10px rgba(255, 46, 99, 0.35); }
         .glow-player { box-shadow: 0 0 10px rgba(0, 102, 255, 0.35); }
         .glow-tie { box-shadow: 0 0 10px rgba(0, 255, 136, 0.35); }
@@ -76,18 +76,11 @@
             width: 18px; height: 18px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 9999px; font-weight: 800; font-size: 8.5px;
-            user-select: none; position: relative;
+            position: relative;
         }
         .big-road-cell {
             width: 16px; height: 16px;
             display: flex; align-items: center; justify-content: center; position: relative;
-        }
-        .big-road-circle {
-            width: 14px; height: 14px; border-radius: 50%; border: 2px solid;
-            display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: bold;
-        }
-        .tie-slash {
-            position: absolute; width: 100%; height: 2px; background-color: #00FF88; transform: rotate(-45deg);
         }
         @keyframes scanline {
             0% { transform: translateY(-100%); }
@@ -101,7 +94,7 @@
     </style>
 </head>
 
-<body class="bg-cyber-bg text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-cyan-500 selection:text-black">
+<body class="bg-cyber-bg text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-cyan-500 selection:text-black" oncontextmenu="return false;">
 
     <!-- ================= LOGIN SCREEN OVERLAY ================= -->
     <div id="login-screen" class="fixed inset-0 bg-[#070A11] flex justify-center items-center z-50 p-4">
@@ -135,7 +128,7 @@
             <p class="text-slate-400 text-xs mb-6">Set a new shared password for members.</p>
             <input type="text" id="new-member-pass" class="w-full p-3 bg-slate-950 border border-cyber-border text-white rounded-lg font-mono text-center mb-4 focus:outline-none focus:border-emerald-400" placeholder="New Password">
             <button onclick="saveNewPassword()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition tracking-wide cursor-pointer">Save New Password</button>
-            <div id="success-msg" class="text-emerald-400 text-xs mt-3 hidden">Password updated successfully!</div>
+            <div id="success-msg" class="text-emerald-400 text-xs mt-3 hidden">Password updated securely!</div>
             <div class="mt-4 text-xs text-slate-500">
                 <a onclick="showMemberLogin()" class="text-cyan-400 underline cursor-pointer">Close / Exit</a>
             </div>
@@ -477,87 +470,103 @@
         </main>
     </div>
 
-    <!-- ================= APP PREDICTOR SCRIPT ENGINE ================= -->
+    <!-- ================= OBFUSCATED & PROTECTED CONTROLLER SCRIPT ================= -->
     <script>
-        // MASTER ACCESS & LOGIN LOGIC
+        // Anti-Debugging / DevTools deterrent shield
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                alert('Source inspection is restricted on this protected application.');
+            }
+        });
+
+        const _0x3b2a=['setItem','getItem','isLoggedIn','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918','shared_password_hash','style','display','none','flex','value','length','push','pop'];
+        (function(_0x14e597,_0x244243){const _0x4c28f9=function(_0x59a997){while(--_0x59a997){_0x14e597['push'](_0x14e597['shift']());}};_0x4c28f9(++_0x244243);}(_0x3b2a,0x1b3));
+        const _0x133b=function(_0x228703,_0x524823){_0x228703=_0x228703-0x0;let _0x2bc837=_0x3b2a[_0x228703];return _0x2bc837;};
+
         const MASTER_ADMIN_KEY = "AdminSecret999!";
-        let currentPassword = localStorage.getItem("shared_password") || "VIP2026";
-
-        window.onload = function() {
-            if (sessionStorage.getItem("isLoggedIn") === "true") {
-                unlockApp();
-            }
-        };
-
-        function loginMember() {
-            const input = document.getElementById("member-pass").value;
-            if (input === currentPassword) {
-                sessionStorage.setItem("isLoggedIn", "true");
-                unlockApp();
-            } else {
-                document.getElementById("login-error").style.display = "block";
-            }
-        }
-
-        function unlockApp() {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("app-content").style.display = "flex";
-            initBaccaratApp();
-        }
-
-        function logout() {
-            sessionStorage.removeItem("isLoggedIn");
-            location.reload();
-        }
-
-        function showAdminLogin() {
-            document.getElementById("member-login-card").style.display = "none";
-            document.getElementById("admin-login-card").style.display = "block";
-        }
-
-        function showMemberLogin() {
-            document.getElementById("admin-login-card").style.display = "none";
-            document.getElementById("admin-update-card").style.display = "none";
-            document.getElementById("member-login-card").style.display = "block";
-            document.getElementById("login-error").style.display = "none";
-            document.getElementById("admin-error").style.display = "none";
-        }
-
-        function verifyAdmin() {
-            const keyInput = document.getElementById("admin-key").value;
-            if (keyInput === MASTER_ADMIN_KEY) {
-                document.getElementById("admin-login-card").style.display = "none";
-                document.getElementById("admin-update-card").style.display = "block";
-                document.getElementById("new-member-pass").value = currentPassword;
-            } else {
-                document.getElementById("admin-error").style.display = "block";
-            }
-        }
-
-        function saveNewPassword() {
-            const newPass = document.getElementById("new-member-pass").value.trim();
-            if (newPass.length > 0) {
-                currentPassword = newPass;
-                localStorage.setItem("shared_password", newPass);
-                document.getElementById("success-msg").style.display = "block";
-                setTimeout(() => {
-                    showMemberLogin();
-                    document.getElementById("success-msg").style.display = "none";
-                }, 1500);
-            }
-        }
-
-        // BACCARAT PREDICTOR ENGINE STATE & LOGIC
         let shoeHistory = [];
-        let modelWeights = [0.2, 0.2, 0.2, 0.2, 0.2]; // Markov, Streak, Chop, Bayes, k-NN
+        let modelWeights = [0.2, 0.2, 0.2, 0.2, 0.2];
         let correctPredictions = 0;
         let totalPredictions = 0;
         let currentPrediction = null;
         let bankroll = 1000;
         let baseUnit = 25;
         let sessionPL = 0;
-        let currentStreakCount = 0;
-        let currentStreakType = null;
+
+        async function hashString(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        window.onload = async function() {
+            if (sessionStorage.getItem(_0x133b('0x0')) === "true") {
+                unlockApp();
+            }
+        };
+
+        async function loginMember() {
+            const input = document.getElementById("member-pass")[_0x133b('0x9')];
+            const inputHash = await hashString(input);
+            const storedHash = localStorage.getItem(_0x133b('0x4')) || _0x133b('0x3');
+
+            if (inputHash === storedHash) {
+                sessionStorage.setItem(_0x133b('0x0'), "true");
+                unlockApp();
+            } else {
+                document.getElementById("login-error")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+            }
+        }
+
+        function unlockApp() {
+            document.getElementById("login-screen")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+            document.getElementById("app-content")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x8');
+            initBaccaratApp();
+        }
+
+        function logout() {
+            sessionStorage.removeItem(_0x133b('0x0'));
+            location.reload();
+        }
+
+        function showAdminLogin() {
+            document.getElementById("member-login-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+            document.getElementById("admin-login-card")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+        }
+
+        function showMemberLogin() {
+            document.getElementById("admin-login-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+            document.getElementById("admin-update-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+            document.getElementById("member-login-card")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+            document.getElementById("login-error")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+            document.getElementById("admin-error")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+        }
+
+        function verifyAdmin() {
+            const keyInput = document.getElementById("admin-key")[_0x133b('0x9')];
+            if (keyInput === MASTER_ADMIN_KEY) {
+                document.getElementById("admin-login-card")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+                document.getElementById("admin-update-card")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+                document.getElementById("new-member-pass")[_0x133b('0x9')] = "";
+            } else {
+                document.getElementById("admin-error")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+            }
+        }
+
+        async function saveNewPassword() {
+            const newPass = document.getElementById("new-member-pass")[_0x133b('0x9')].trim();
+            if (newPass.length > 0) {
+                const newHash = await hashString(newPass);
+                localStorage.setItem(_0x133b('0x4'), newHash);
+                document.getElementById("success-msg")[_0x133b('0x5')][_0x133b('0x6')] = "block";
+                setTimeout(() => {
+                    showMemberLogin();
+                    document.getElementById("success-msg")[_0x133b('0x5')][_0x133b('0x6')] = _0x133b('0x7');
+                }, 1500);
+            }
+        }
 
         function initBaccaratApp() {
             setupGridContainers();
@@ -620,7 +629,6 @@
         }
 
         function recordHand(outcome) {
-            // Evaluate prior prediction accuracy if available
             if (currentPrediction) {
                 totalPredictions++;
                 if (currentPrediction === outcome || (outcome === 'T')) {
@@ -638,7 +646,6 @@
 
         function calculateEnsemblePrediction() {
             if (shoeHistory.length < 3) return Math.random() > 0.5 ? 'B' : 'P';
-            // Simple model logic voting aggregator
             let bScore = modelWeights[0] * 0.5 + modelWeights[1] * 0.6 + modelWeights[4] * 0.5;
             let pScore = modelWeights[2] * 0.5 + modelWeights[3] * 0.5;
             return bScore >= pScore ? 'B' : 'P';
@@ -650,7 +657,6 @@
                 modelWeights[i] += (Math.random() - 0.5) * 0.05 + reward;
                 if (modelWeights[i] < 0.05) modelWeights[i] = 0.05;
             }
-            // Normalize
             let sum = modelWeights.reduce((a, b) => a + b, 0);
             modelWeights = modelWeights.map(w => w / sum);
         }
@@ -680,7 +686,6 @@
             document.getElementById("metric-total-hands").innerText = shoeHistory.length;
             document.getElementById("undo-count-badge").innerText = shoeHistory.length;
 
-            // Render Trail
             const trailDiv = document.getElementById("recent-trail-container");
             if (shoeHistory.length === 0) {
                 trailDiv.innerHTML = '<span class="text-[9px] text-slate-600 italic font-mono">Awaiting first hand...</span>';
@@ -691,7 +696,6 @@
                 }).join('');
             }
 
-            // Recommendation update
             const recBadge = document.getElementById("ai-recommendation-badge");
             if (currentPrediction) {
                 let text = currentPrediction === 'B' ? 'BANKER (B)' : 'PLAYER (P)';
@@ -703,11 +707,9 @@
                 recBadge.innerText = "WAIT / LOG HAND";
             }
 
-            // Accuracy Display
             let acc = totalPredictions > 0 ? ((correctPredictions / totalPredictions) * 100).toFixed(1) : "100.0";
             document.getElementById("ai-accuracy-score").innerText = `${acc}% (${correctPredictions}✓ / ${totalPredictions - correctPredictions}✗)`;
 
-            // Weights update
             for (let i = 0; i < 5; i++) {
                 let pct = (modelWeights[i] * 100).toFixed(1) + "%";
                 document.getElementById(`weight-m${i+1}-text`).innerText = pct;
